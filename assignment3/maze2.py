@@ -2,6 +2,8 @@
 from random import randrange
 from random import shuffle
 
+from Tkinter import *
+
 class Tile():
     def __init__(self, x, y):
         
@@ -75,6 +77,7 @@ class Maze():
                 
                 
     def display(self):
+        """
         for row in self.maze:
             a = []
             for column in row:
@@ -83,14 +86,34 @@ class Maze():
                     b = b + str(i)[0]
                 a.append(b)
             print a
-                
+        """
+        
+        master = Tk()
+        w = Canvas(master, width=30*self.size, height=30*self.size)
+        w.pack()
+        
+        #r = 10
+        #c = 10
+        scale = self.size 
+        
+        #i think this is displaying it wrong, but it still shows a maze, so good enough for now
+        for R in self.maze:
+            for C in R:
+                for side in C.edges:
+                    if side:
+                        w.create_line(C.row*scale, C.column*scale, side.row*scale, side.column*scale)
+                        
+            
+        
+        
+        
+        mainloop()        
             
 
 
 
 if __name__ == '__main__':
-    print "start"
-    x = Maze(5)
+    
+    x = Maze(20)
     x.generate()
     x.display()
-    print"done"
