@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 
 from random import randrange
 from random import shuffle
@@ -12,16 +13,39 @@ class Tile():
         
         self.connected = False
         
-        self.edges = [False, False, False, False]
-        
-    def Left(self):
+        self.edges = [None, None, None, None]
+    
+    @property
+    def left(self):
         return self.edges[0]
-    def Right(self):
+    
+    @left.setter
+    def left(self, value):
+        self.edges[0] = value
+    
+    @property
+    def right(self):
         return self.edges[1]
-    def Up(self):
+        
+    @right.setter
+    def right(self, value):
+        self.edges[1] = value
+        
+    @property
+    def up(self):
         return self.edges[2]
-    def Down(self):
+        
+    @up.setter
+    def up(self, value):
+        self.edges[2] = value
+        
+    @property
+    def down(self):
         return self.edges[3]
+        
+    @down.setter
+    def down(self, value):
+        self.edges[3] = value
     
 class Maze():
     def __init__(self, size):
