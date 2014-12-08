@@ -12,11 +12,12 @@ def addVectors(v1, v2):
 
 
 class MazeWidget(Widget):
-    def __init__(self, mazeSize=20):
+    def __init__(self, mazeSize=10):
         self.maze = Maze(mazeSize)
         self.maze.generate()
         super(self.__class__, self).__init__()
         self.drawMaze()
+	self.maze.displayText()
         self.bind(pos=self.updateRect, size=self.updateRect)
     
     def drawMaze(self):
@@ -25,23 +26,30 @@ class MazeWidget(Widget):
         with self.canvas:
             Color(1,1,1)
             Rectangle(pos=self.pos, size=self.size)
-            for (i,row) in enumerate(self.maze.maze):
-                for (j,tile) in enumerate(row):
-                    tileTopLeft = addVectors(self.pos, (i*tileWidth, j*tileHeight))
-                    tileTopRight = addVectors(tileTopLeft, (tileWidth, 0))
-                    tileBottomLeft = addVectors(tileTopLeft, (0, tileHeight))
-                    tileBottomRight = addVectors(tileTopLeft, (tileWidth, tileHeight))
-                    tileCentre = addVectors(tileTopLeft, (tileWidth/2, tileHeight/2))
+            for (j,row) in enumerate(self.maze.maze):
+                for (i,tile) in enumerate(row):
+                    tileBottomLeft = addVectors(self.pos, (i*tileWidth, j*tileHeight))
+                    tileBottomRight = addVectors(tileBottomLeft, (tileWidth, 0))
+                    tileTopLeft = addVectors(tileBottomLeft, (0, tileHeight))
+                    tileTopRight = addVectors(tileBottomLeft, (tileWidth, tileHeight))
+                    tileCentre = addVectors(tileBottomLeft, (tileWidth/2, tileHeight/2))
                     
+		    m = 5
+		    tileBottomLeft = addVectors(tileBottomLeft, (m, m))
+		    tileBottomRight = addVectors(tileBottomRight, (-m, m))
+		    tileTopLeft = addVectors(tileTopLeft, (m, -m))
+		    tileTopRight = addVectors(tileTopRight, (-m, -m))
+		    
                     Color(0,0,0)
-                    if tile.left is not None:
-                        Line(points=tileTopLeft+tileBottomLeft)
-                    if tile.right is not None:
-                        Line(points=tileTopRight+tileBottomRight)
-                    if tile.up is not None:
-                        Line(points=tileTopLeft+tileTopRight)
-                    if tile.down is not None:
-                        Line(points=tileBottomLeft+tileBottomRight)
+		    lineWidth = 2.0
+                    if tile.left is None:
+                        Line(points=tileTopLeft+tileBottomLeft,width=lineWidth)
+                    if tile.right is None:
+                        Line(points=tileTopRight+tileBottomRight,width=lineWidth)
+                    if tile.up is None:
+                        Line(points=tileTopLeft+tileTopRight,width=lineWidth)
+                    if tile.down is None:
+                        Line(points=tileBottomLeft+tileBottomRight,width=lineWidth)
                         
                     Color(1,0,0,0.2)
                     d=20
