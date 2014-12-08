@@ -99,9 +99,7 @@ class Maze():
             else:
                 nodes.pop()
                 
-                
-    def display(self):
-        """
+    def displayText(self):
         for row in self.maze:
             a = []
             for column in row:
@@ -110,7 +108,9 @@ class Maze():
                     b = b + str(i)[0]
                 a.append(b)
             print a
-        """
+        
+    def displayTk(self):
+
         
         master = Tk()
         w = Canvas(master, width=30*self.size, height=30*self.size)
@@ -132,7 +132,7 @@ class Maze():
         
         
         mainloop()        
-            
+        
 
 
 
