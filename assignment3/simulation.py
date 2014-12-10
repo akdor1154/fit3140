@@ -20,9 +20,11 @@ class Goal(MazeObject):
         pass   
 
 class Robot(MazeObject):
-    def __init__(self, tile):
+    def __init__(self, tile, maze):
         super(self.__class__, self).__init__(tile=tile)
         self.orientation = 0 #0,1,2,3 = left,right,up,down
+        
+        self.maze = maze
         
     def move(self):
         if self.tile.edges[self.orientation] is not None:
@@ -58,10 +60,32 @@ class Robot(MazeObject):
         test = self.tile
         distance = 0
         while test.edges[self.orientation] is not None:
-            pass
+            distance +=1
+            test = test.edges[self.orientation]
+        return distance
+            
+    def detectGoal(self):
+        X = [0, 0, 1, -1]
+        Y = [-1, 1, 0, 0]
+        
+        nextX = X[self.orientation]
+        nextY = Y[self.orientation]
+        
+        distance = 0
+        row = self.tile.row
+        column = self.tile.column
+        while self.maze[row][column] is not None:
+            if self.maze[row][column].goal:
+                break
+            row += nextX
+            column += nextY
+        return distance
+            
 
 class Tile():
     def __init__(self, x, y):
+        
+        self.object = None
         
         self.column = x
         self.row = y
