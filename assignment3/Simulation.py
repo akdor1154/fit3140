@@ -4,20 +4,61 @@ from random import randrange
 from random import shuffle
 
 
+class WallError(Exception):
+    def __init__(self, wall):
+        self.wallHit = wall
+    def __str__(self):
+        return ("Hit wall: " + str(self.wallHit))
+
+
 class MazeObject():
     def __init__(self, tile):
         self.tile = tile
     
-    class Goal():
-        def __init__(self):
-            pass   
+class Goal(MazeObject):
+    def __init__(self):
+        pass   
+
+class Robot(MazeObject):
+    def __init__(self, tile):
+        super(self.__class__, self).__init__(tile=tile)
+        self.orientation = 0 #0,1,2,3 = left,right,up,down
+        
+    def move(self):
+        if self.tile.edges[self.orientation] is not None:
+            self.tile = self.tile.edges[self.orientation]
+        else:
+            raise WallError(self.orientation)
     
-    class Robot():
-        def __init__(self, tile):
-            self.orientation = 0 #0,1,2,3 = left,right,up,down
-            self.currentTile = tile
-
-
+    #              0    1    2   3
+    #edge order: left right up down
+    #turn right: left up right down
+    #turn left: down right up left
+    def turnLeft(self):
+        if self.orientaton == 0:
+            self.orientation = 3
+        elif self.orientation == 1:
+            self.orientation = 2
+        elif self.orientation == 2:
+            self.orientation = 0
+        elif self.orientation == 3:
+            self.orientation = 1
+        
+    def turnRight(self):
+        if self.orientaton == 0:
+            self.orientation = 2
+        elif self.orientation == 1:
+            self.orientation = 3
+        elif self.orientation == 2:
+            self.orientation = 1
+        elif self.orientation == 3:
+            self.orientation = 0
+            
+    def detectWall(self):
+        test = self.tile
+        distance = 0
+        while test.edges[self.orientation] is not None:
+            pass
 
 class Tile():
     def __init__(self, x, y):
@@ -125,7 +166,4 @@ class Maze():
         
 
 if __name__ == '__main__':
-    
-    x = Maze(20)
-    x.generate()
-    x.display()
+    pass
