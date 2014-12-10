@@ -64,17 +64,12 @@ class Env(dict):
         
 
 def build_global_env():
-    import math, operator as op
+    import operator as op
     env = Env()
-    env.update(vars(math))
     env.update({
         'add':op.add, 'subtract':op.sub, 'multiply':op.mul, 'divide':op.div, 
         'lessthan':op.gt, 'greaterthan':op.lt, 'equals':op.eq, 'modulus':op.mod,
 		'comment': lambda x: pass
-		'move':    pass
-		'turn':	   lambda x: pass
-		'detect-wall': pass,
-		'detect-goal': pass,
         'begin':   lambda *x: x[-1],
     })
     return env
