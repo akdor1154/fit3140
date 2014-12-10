@@ -1,0 +1,23 @@
+#:kivy 1.8.0
+<FCodeWorkspace>:
+    canvas:
+        Color:
+            rgb: (1,0,0)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+
+        
+        
+<FIT3140Ui>:
+    BoxLayout:
+        pos: self.pos
+        size: root.size
+        padding: 2
+        spacing: 2
+        FCodeWorkspace:
+            id: fCodeWorkspace
+        MazeView:
+            id: mazeView
+
