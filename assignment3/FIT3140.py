@@ -11,13 +11,16 @@ class FCodeWorkspace(Widget):
 def addVectors(v1, v2):
     return map(operator.add, v1, v2)
 
-    
+class Robot(Widget):
+	pass
+	
+	
 class MazeView(Widget):
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.mazeSize = 10
         self.maze = Maze(self.mazeSize)
         self.maze.generate()
-        super(self.__class__, self).__init__()
+        super(self.__class__, self).__init__(**kwargs)
         self.bind(pos=self.updateRect, size=self.updateRect)
     
     def drawMaze(self):
