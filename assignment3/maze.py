@@ -61,6 +61,7 @@ class Maze():
              
         self.start = self.maze[0][randrange(size)]
         self.start.connected = True
+		self.generate()
         
         
     def generate(self):
