@@ -3,12 +3,16 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.widget import Widget
 from kivy.graphics import Color, Rectangle, Line, Ellipse
+from kivy.core.window import Window
 import operator
-from maze import Maze
+
+from simulation import *
+from robotController import RobotController
 
 import __future__
 
 class FCodeWorkspace(Widget):
+	
 	pass
 
 
@@ -17,19 +21,35 @@ def addVectors(v1, v2):
 
 class Robot(Widget):
 	pass
+
+class RobotView(Widget):
 	
+	def __init__(self, mazeView, **kwargs):
+		super(self.__class__, self).__init__(**kwargs)
+		self.mazeView = mazeView
+		self.robot = mazeView.robot
+		self.size = (10,10)
+		self.bind(pos=self.draw)
+	
+	def updatePos(self):
+		self.pos = (self.robot.x * tileWidth, self.robot.y * tileHeight)
 	
 class MazeView(Widget):
 	def __init__(self, maze, robot, **kwargs):
 		self.mazeSize = 10
 		self.maze = maze
 		self.robot = robot
+		self.robotView = RobotView(mazeView)
+		self.tileWidth =  0
+		self.tileHeight = 0
 		super(self.__class__, self).__init__(**kwargs)
 		self.bind(pos=self.updateRect, size=self.updateRect)
 	
 	def drawMaze(self):
 		tileWidth = self.width/self.maze.size
 		tileHeight = self.height/self.maze.size
+		self.tileWidth = tileWidth # need to keep track of these, but the following code will be very verbose if
+		self.tileHeight = tileHeight # we need to have self. everywhere!
 		with self.canvas:
 			Color(1,1,1)
 			Rectangle(pos=self.pos, size=self.size)
@@ -60,40 +80,33 @@ class MazeView(Widget):
 						
 					Color(1,0,0,0.2)
 					d=20
-					if tile.connected:
-						Ellipse(pos=addVectors(tileCentre,(-d/2,-d/2)), size=(d,d))
-					
+
 	
 	def updateRect(self, instance, value):
 		self.drawMaze()
 
-class FIT3140Ui(Widget):
+class FIT3140Ui(BoxLayout):
 	def __init__(self, maze, robotController, **kwargs):
-		super().__init__(**kwargs)
+		super(self.__class__,self).__init__(**kwargs)
 		self.maze = maze
 		self.robotController = robotController
-		self.robot = robotController.robot
-		
-		self.boxLayout = BoxLayout(
-			pos=self.pos,
-			size=root.size,
-			padding=2,
-			spacing=2
-		)
+		self.robot = self.robotController.robot
 		
 		self.fCodeWorkspace = FCodeWorkspace()
 		self.mazeViewFloat = FloatLayout()
 		self.mazeView = MazeView(self.maze, self.robot)
 		
-		self.mazeViewFloat.add_widget(self.mazeView)
+		#self.mazeViewFloat.add_widget(self.mazeView)
 		
-		self.boxLayout.add_widget(self.fCodeWorkspace)
-		self.boxLayout.add_widget(self.mazeViewFloat)
-
+		self.add_widget(self.fCodeWorkspace)
+		self.add_widget(self.mazeView)
 
 class FIT3140App(kivy.app.App):
 	def build(self):
-		return FIT3140Ui()
+		self.maze = Maze(10)
+		self.robot = Robot()
+		self.robotController = RobotController(self.robot, self.maze)
+		return FIT3140Ui(self.maze, self.robotController, size=Window.size)
 
 		
 

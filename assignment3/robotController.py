@@ -7,9 +7,9 @@ class RobotController():
 		self.fCode = None
 		self.robotEnv = fcode.build_global_env()
 		self.robotEnv.update({
-			'move':    self.robot.move
-			'turn':	   lambda x: self.turn(x)
-			'detect-wall': self.robot.detectWall,
+			'move':    lambda: Robot.move(self.robot),
+			'turn':	   lambda x: self.turn(x),
+			'detect-wall': lambda: Robot.move(self.robot),
 			'detect-goal': self.detectGoal,
 		})
 		

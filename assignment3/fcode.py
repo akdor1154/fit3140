@@ -69,7 +69,7 @@ def build_global_env():
     env.update({
         'add':op.add, 'subtract':op.sub, 'multiply':op.mul, 'divide':op.div, 
         'lessthan':op.gt, 'greaterthan':op.lt, 'equals':op.eq, 'modulus':op.mod,
-		'comment': lambda x: pass
+		'comment': lambda x: None,
         'begin':   lambda *x: x[-1],
     })
     return env
