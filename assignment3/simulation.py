@@ -5,6 +5,7 @@ from random import shuffle
 
 
 class WallError(Exception):
+    #error for if the robot crashes into a wall
     def __init__(self, wall):
         self.wallHit = wall
     def __str__(self):
@@ -21,7 +22,7 @@ class Goal(MazeObject):
 
 class Robot(MazeObject):
     def __init__(self, tile, maze):
-        super(self.__class__, self).__init__(tile=tile)
+        super(self.__class__, self).__init__(tile=tile)#inherits from MazeObject
         self.orientation = 0 #0,1,2,3 = left,right,up,down
         
         self.maze = maze
@@ -59,7 +60,7 @@ class Robot(MazeObject):
     def detectWall(self):
         test = self.tile
         distance = 0
-        while test.edges[self.orientation] is not None:
+        while test.edges[self.orientation] is not None:#while there is not a wall, count 1 tile and move to the next tile
             distance +=1
             test = test.edges[self.orientation]
         return distance
@@ -67,6 +68,8 @@ class Robot(MazeObject):
     def detectGoal(self):
         X = [0, 0, 1, -1]
         Y = [-1, 1, 0, 0]
+        
+        #^^ the additions you need to make to the current index to move one space, using the direction as the index
         
         nextX = X[self.orientation]
         nextY = Y[self.orientation]
@@ -92,7 +95,7 @@ class Tile():
         
         self.connected = False
         
-        self.edges = [None, None, None, None]
+        self.edges = [None, None, None, None]#[left, right, up, down]
     
     @property
     def left(self):
@@ -147,24 +150,27 @@ class Maze():
         #[left, right, up, down]
         X = [0, 0, 1, -1]
         Y = [-1, 1, 0, 0]
-        order = [0, 1, 2, 3]
-        
+        #^^ the additions you need to make to the current index to move along one edge, with that edge as the index
+        randorder = [0, 1, 2, 3]
+
         nodes = [self.start]
         
         while len(nodes) > 0:
             
             current = nodes[-1]
             
-            randorder = order
-            shuffle(randorder)
+            #randorder = order
+            shuffle(randorder)#the order that the edges of the tile will be checked
             
             nextTile = None
             for side in randorder:
                 nextRow = current.row + X[side]
                 nextColumn = current.column + Y[side]
-                if (nextRow >= 0 and nextRow < self.size and nextColumn >= 0 and nextColumn < self.size) and (not (self.maze[nextRow][nextColumn].connected)):
+                #(X/Y)[side] will match up with the direction of side, giving the next tile
+                if (nextRow >= 0 and nextRow < self.size and nextColumn >= 0 and nextColumn < self.size) and (not (self.maze[nextRow][nextColumn].connected)):#check if the tile on this side 1) exists, and 2) is not already part of the maze
                     nextTile = self.maze[nextRow][nextColumn]
                     
+                    #link the two tiles together
                     current.edges[side] = nextTile
                     if side % 2 == 0:
                         nextTile.edges[side+1] = current
@@ -173,12 +179,16 @@ class Maze():
                     break
                 
             if not (nextTile is None):
+                #flag the tile as connected, so that we don't loop back to it later, and add it to the stack(nodes)
                 nextTile.connected = True
                 nodes.append(nextTile)
             else:
+                #this will only happen if there were no sides left in the tile to do anything with, so we can pop it off the stack
                 nodes.pop()
                 
     def displayText(self):
+        #for testing purposes only
+        #print maze with maze[0] at the top (backwards)
         for row in self.maze:
             a = []
             for column in row:

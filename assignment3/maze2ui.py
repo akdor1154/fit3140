@@ -4,7 +4,7 @@ from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.graphics import Color, Rectangle, Line, Ellipse
 import operator
-from maze2 import Maze
+from simulation import Maze
 import __future__
 
 def addVectors(v1, v2):
@@ -53,8 +53,8 @@ class MazeWidget(Widget):
                         
                     Color(1,0,0,0.2)
                     d=20
-                    if tile.connected:
-                        Ellipse(pos=addVectors(tileCentre,(-d/2,-d/2)), size=(d,d))
+                    #if tile.connected:
+                    #    Ellipse(pos=addVectors(tileCentre,(-d/2,-d/2)), size=(d,d))
                     
     
     def updateRect(self, instance, value):
