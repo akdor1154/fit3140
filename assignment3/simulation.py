@@ -37,16 +37,18 @@ class Robot(MazeObject):
 	#edge order: left right up down
 	#turn right: left up right down
 	#turn left: down right up left
-	def turnLeft(self):
-		if self.orientaton == 0:
-			self.orientation = 3
-		elif self.orientation == 1:
-			self.orientation = 2
-		elif self.orientation == 2:
-			self.orientation = 0
-		elif self.orientation == 3:
-			self.orientation = 1
-		
+	#def turnLeft(self):
+	def turn(self, n):
+		for _ in range(n):
+			if self.orientaton == 0:
+				self.orientation = 3
+			elif self.orientation == 1:
+				self.orientation = 2
+			elif self.orientation == 2:
+				self.orientation = 0
+			elif self.orientation == 3:
+				self.orientation = 1
+	"""	
 	def turnRight(self):
 		if self.orientaton == 0:
 			self.orientation = 2
@@ -56,7 +58,7 @@ class Robot(MazeObject):
 			self.orientation = 1
 		elif self.orientation == 3:
 			self.orientation = 0
-			
+	"""		
 	def detectWall(self):
 		test = self.tile
 		distance = 0

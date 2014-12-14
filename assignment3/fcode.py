@@ -5,6 +5,39 @@
 
 import __future__
 
+
+
+class fBlock():
+
+    def __init__(self, *args):
+        self.function = args[0]
+        self.args = args[1:]
+        
+        self.code = "("
+        for arg in args:
+            self.code += str(arg)
+            self.code += " "
+        self.code = self.code[:-1] + ")" #cut off the last extra space and add a closed bracket to the end
+        
+        self.code = parse(self.code)
+        
+        
+class fTree():
+    
+    def __init__(self):
+        self.blocks = []
+        
+    def addBlock(self, block):
+        self.blocks.append(block)
+        
+    def execute(self):
+        for block in self.blocks:
+            eval(block.code)
+
+
+
+
+
 def tokenize(lispyString):
     "Read a lispy statement into a list of tokens"
     return lispyString.replace('(',' ( ').replace(')', ' ) ').split()
@@ -109,3 +142,5 @@ def treeToString(tree):
     else:
         return str(tree)
 
+x = fBlock("add" ,2,3)
+print eval(x.code)
