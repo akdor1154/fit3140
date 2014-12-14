@@ -3,6 +3,7 @@
 from random import randrange
 from random import shuffle
 
+import __future__
 
 class WallError(Exception):
 	#error for if the robot crashes into a wall
@@ -12,7 +13,7 @@ class WallError(Exception):
 		return ("Hit wall: " + str(self.wallHit))
 
 
-class MazeObject():
+class MazeObject(object):
 	def __init__(self, tile):
 		self.tile = tile
 	
@@ -94,7 +95,7 @@ class Robot(MazeObject):
 	def y(self):
 		return self.tile.column
 
-class Tile():
+class Tile(object):
 	def __init__(self, x, y):
 		
 		self.object = None
@@ -138,7 +139,7 @@ class Tile():
 	def down(self, value):
 		self.edges[3] = value
 	
-class Maze():
+class Maze(object):
 	def __init__(self, size):
 		self.size = size
 		self.maze = []

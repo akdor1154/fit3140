@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 import kivy.app
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
@@ -19,31 +20,36 @@ class FCodeWorkspace(Widget):
 def addVectors(v1, v2):
 	return map(operator.add, v1, v2)
 
-class Robot(Widget):
-	pass
 
 class RobotView(Widget):
-	
-	def __init__(self, mazeView, **kwargs):
+	def __init__(self, mazeView, pos=(0,0), **kwargs):
 		super(self.__class__, self).__init__(**kwargs)
 		self.mazeView = mazeView
 		self.robot = mazeView.robot
 		self.size = (10,10)
-		self.bind(pos=self.draw)
+		#self.bind(pos=self.updatePos)
+		self.updatePos()
+		self.draw()
 	
 	def updatePos(self):
-		self.pos = (self.robot.x * tileWidth, self.robot.y * tileHeight)
-	
+		self.pos = (self.robot.x * self.mazeView.tileWidth, self.robot.y * self.mazeView.tileHeight)
+		#self.draw()
+		
+	def draw(self):
+		with self.mazeView.canvas:
+			Color(0,0,1)
+			Ellipse(pos=self.pos, size=self.size)
+
 class MazeView(Widget):
 	def __init__(self, maze, robot, **kwargs):
 		self.mazeSize = 10
 		self.maze = maze
 		self.robot = robot
-		self.robotView = RobotView(mazeView)
 		self.tileWidth =  0
 		self.tileHeight = 0
 		super(self.__class__, self).__init__(**kwargs)
 		self.bind(pos=self.updateRect, size=self.updateRect)
+		self.robotView = RobotView(self)
 	
 	def drawMaze(self):
 		tileWidth = self.width/self.maze.size
@@ -80,6 +86,7 @@ class MazeView(Widget):
 						
 					Color(1,0,0,0.2)
 					d=20
+		self.robotView.draw()
 
 	
 	def updateRect(self, instance, value):
@@ -96,15 +103,14 @@ class FIT3140Ui(BoxLayout):
 		self.mazeViewFloat = FloatLayout()
 		self.mazeView = MazeView(self.maze, self.robot)
 		
-		#self.mazeViewFloat.add_widget(self.mazeView)
-		
+		self.mazeViewFloat.add_widget(self.mazeView)
 		self.add_widget(self.fCodeWorkspace)
-		self.add_widget(self.mazeView)
+		self.add_widget(self.mazeViewFloat)
 
 class FIT3140App(kivy.app.App):
 	def build(self):
 		self.maze = Maze(10)
-		self.robot = Robot()
+		self.robot = Robot(self.maze.start, self.maze)
 		self.robotController = RobotController(self.robot, self.maze)
 		return FIT3140Ui(self.maze, self.robotController, size=Window.size)
 
