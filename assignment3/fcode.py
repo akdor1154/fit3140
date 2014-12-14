@@ -13,14 +13,18 @@ class fBlock():
         self.function = args[0]
         self.args = args[1:]
         
-        self.code = "("
+        self.codeStr = "("
         for arg in args:
-            self.code += str(arg)
-            self.code += " "
-        self.code = self.code[:-1] + ")" #cut off the last extra space and add a closed bracket to the end
+            self.codeStr += str(arg)
+            self.codeStr += " "
+        self.codeStr = self.codeStr[:-1] + ")" #cut off the last extra space and add a closed bracket to the end
+
+        self.code = parse(self.codeStr)
         
-        self.code = parse(self.code)
+        #self.code is the parsed code
+        #self.codeStr is the code as text, eg. (add (add 1 1) (subtract 2 1)) 
         
+
         
 class fTree():
     
@@ -32,8 +36,9 @@ class fTree():
         
     def execute(self):
         for block in self.blocks:
-            eval(block.code)
-
+            if block == self.blocks[-1]:
+                return eval(block.code)
+            print eval(block.code)
 
 
 
@@ -142,5 +147,15 @@ def treeToString(tree):
     else:
         return str(tree)
 
+"""
+testing
+
 x = fBlock("add" ,2,3)
-print eval(x.code)
+y = fBlock("subtract" ,2,1)
+w = fBlock("add", x.codeStr, y.codeStr)
+z = fTree()
+z.addBlock(x)
+z.addBlock(y)
+z.addBlock(w)
+z.execute()
+"""

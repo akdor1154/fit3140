@@ -20,6 +20,9 @@ class codeSpace(App):
         
         self.workspace = BoxLayout(orientation="vertical", size_hint=(1, .9))
         self.beginButton = Button(text="Begin", size_hint=(1, .1))
+        
+        self.beginButton.bind(on_press=self.runProgram)
+        
         self.code = Label()
         self.workspace.add_widget(self.code)
         self.workspace.add_widget(self.beginButton)
@@ -32,9 +35,11 @@ class codeSpace(App):
     #def workSpacePH(self):
     #    self.code = Label()
     
-    def runProgram(self):
-        pass
-    
+    def runProgram(self, button):
+        try:
+            self.code.text = "result= \n" + str(self.tree.execute())
+        except:
+            self.tree.execute()
     def addBlock(self, button):
         a = fBlock(button.text, self.arguments[0].text, self.arguments[1].text, self.arguments[2].text, self.arguments[3].text, self.arguments[4].text)
         self.tree.addBlock(a)
