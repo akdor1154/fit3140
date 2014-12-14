@@ -14,16 +14,16 @@ class codeSpace(App):
 
 
     def build(self):
-        self.layout = BoxLayout()
+        self.layout = BoxLayout()# the place to put palette and workspace
         
-        self.tree = fTree()
+        self.tree = fTree()#for now there will be only one tree (will change in next version)
         
-        self.workspace = BoxLayout(orientation="vertical", size_hint=(1, .9))
-        self.beginButton = Button(text="Begin", size_hint=(1, .1))
+        self.workspace = BoxLayout(orientation="vertical", size_hint=(1, .9))#will contain a 'begin' button and label
+        self.beginButton = Button(text="Begin", size_hint=(1, .1))#run the tree
         
         self.beginButton.bind(on_press=self.runProgram)
         
-        self.code = Label()
+        self.code = Label()#code is just being shown as text for now, will change in the next version
         self.workspace.add_widget(self.code)
         self.workspace.add_widget(self.beginButton)
         

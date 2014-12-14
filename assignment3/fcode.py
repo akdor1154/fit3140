@@ -8,6 +8,7 @@ import __future__
 
 
 class fBlock():
+    #represents a code block (eg. (add x y)  )
 
     def __init__(self, *args):
         self.function = args[0]
@@ -27,7 +28,7 @@ class fBlock():
 
         
 class fTree():
-    
+    #a 'tree' of code; a function
     def __init__(self):
         self.blocks = []
         
@@ -37,7 +38,7 @@ class fTree():
     def execute(self):
         for block in self.blocks:
             if block == self.blocks[-1]:
-                return eval(block.code)
+                return eval(block.code)#the last line of code is what gets returned
             print eval(block.code)
 
 
