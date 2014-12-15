@@ -31,22 +31,23 @@ class RobotView(Widget):
 		super(self.__class__, self).__init__(**kwargs)
 		self.mazeView = mazeView
 		self.robot = mazeView.robot
-		self.size = (1000,1000)
+		self.size = (10,10)
 		self.robot.bind(kposition=self.updatePos)
 		self.robot.bind(kposition=self.updateOrientation)
 		with self.mazeView.canvas:
 			Color(0,0,1)
 			self.e = Ellipse(pos=self.pos, size=self.size)
+		self.updatePos()
 	
 	def updatePos(self, instance=None, value=(0,0)):
 		print("robot is at",self.robot.x,",",self.robot.y)
+		print("position: ",self.pos, self.mazeView.pos)
 		self.e.pos = addVectors(
-			self.pos, addVectors(
 				(0.5*self.mazeView.tileWidth, 0.5*self.mazeView.tileHeight),
 				(self.robot.x * self.mazeView.tileWidth, self.robot.y * self.mazeView.tileHeight)
-			)
+		
 		)
-		print(" and just moved to",self.robot.x,",",self.robot.y)
+		print("position: ",self.pos,self.mazeView.pos,self.parent,self.mazeView.parent)
 	
 	def updateOrientation(self, instance, value):
 		pass
@@ -74,13 +75,14 @@ class MazeView(Widget):
 		
 		self.bind(pos=self.updatePos, size=self.updateSize)
 		
-		self.robotView = RobotView(mazeView=self)
-		self.layout.add_widget(self.robotView)
 		#self.robotView.updatePos()
 		
 		with self.canvas:
 			Color(1,1,1)
 			self.background = Rectangle(pos=self.pos, size=self.size)
+			
+		self.robotView = RobotView(mazeView=self)
+		self.layout.add_widget(self.robotView)
 			
 		self.tileLines = [[self.TileView(parent=self) for tile in row] for row in self.maze.maze]
 		self.updateLines()
