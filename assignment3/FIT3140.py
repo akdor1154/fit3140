@@ -3,7 +3,7 @@ import kivy.app
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
-from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 from kivy.graphics import Color, Rectangle, Line, Ellipse
@@ -27,23 +27,30 @@ def addVectors(v1, v2):
 
 
 class RobotView(Widget):
-	def __init__(self, mazeView, pos=(0,0), **kwargs):
+	def __init__(self, mazeView, **kwargs):
 		super(self.__class__, self).__init__(**kwargs)
 		self.mazeView = mazeView
 		self.robot = mazeView.robot
-		self.size = (10,10)
-		#self.bind(pos=self.updatePos)
-		self.updatePos()
-		self.draw()
-	
-	def updatePos(self):
-		self.pos = (self.robot.x * self.mazeView.tileWidth, self.robot.y * self.mazeView.tileHeight)
-		#self.draw()
-		
-	def draw(self):
+		self.size = (1000,1000)
+		self.robot.bind(kposition=self.updatePos)
+		self.robot.bind(kposition=self.updateOrientation)
 		with self.mazeView.canvas:
 			Color(0,0,1)
-			Ellipse(pos=self.pos, size=self.size)
+			self.e = Ellipse(pos=self.pos, size=self.size)
+	
+	def updatePos(self, instance=None, value=(0,0)):
+		print("robot is at",self.robot.x,",",self.robot.y)
+		self.e.pos = addVectors(
+			self.pos, addVectors(
+				(0.5*self.mazeView.tileWidth, 0.5*self.mazeView.tileHeight),
+				(self.robot.x * self.mazeView.tileWidth, self.robot.y * self.mazeView.tileHeight)
+			)
+		)
+		print(" and just moved to",self.robot.x,",",self.robot.y)
+	
+	def updateOrientation(self, instance, value):
+		pass
+		
 
 class MazeView(Widget):
 	class TileView(object):
@@ -57,17 +64,24 @@ class MazeView(Widget):
 				self.upLine = Line(points=upLinePoints, width=self.lineWidth)
 				self.downLine = Line(points=downLinePoints, width=self.lineWidth)
 
-	def __init__(self, maze, robot, **kwargs):
+	def __init__(self, maze, robot, layout, **kwargs):
 		Widget.__init__(self, **kwargs)
 		
 		self.mazeSize = 10
 		self.maze = maze
 		self.robot = robot
+		self.layout = layout
+		
 		self.bind(pos=self.updatePos, size=self.updateSize)
-		self.robotView = RobotView(self)
+		
+		self.robotView = RobotView(mazeView=self)
+		self.layout.add_widget(self.robotView)
+		#self.robotView.updatePos()
+		
 		with self.canvas:
 			Color(1,1,1)
 			self.background = Rectangle(pos=self.pos, size=self.size)
+			
 		self.tileLines = [[self.TileView(parent=self) for tile in row] for row in self.maze.maze]
 		self.updateLines()
 
@@ -127,7 +141,7 @@ class Palette(BoxLayout):
 		for a in self.app.arguments:
 			argumentSection.add_widget(a)
 			
-		
+				
 		self.turnButton = Button(text="turn")
 		self.moveButton = Button(text="move")
 		self.detectWallButton = Button(text="detect-wall")
@@ -177,31 +191,28 @@ class Palette(BoxLayout):
 
 class FIT3140Ui(BoxLayout):
 	def __init__(self, maze, robotController, **kwargs):
+	
 		super(self.__class__,self).__init__(**kwargs)
+		self.app = kivy.app.App.get_running_app()
+		
 		self.maze = maze
 		self.robotController = robotController
 		self.robot = self.robotController.robot
-		self.app = kivy.app.App.get_running_app()
-		self.fCodeWorkspace = FCodeWorkspace()
-		#self.mazeViewFloat = FloatLayout()
-		self.mazeView = MazeView(self.maze, self.robot)
 		
-		#self.mazeViewFloat.add_widget(self.mazeView)
-		#self.add_widget(self.fCodeWorkspace)
-		
+		self.mazeViewFloat = RelativeLayout()
+		self.mazeView = MazeView(self.maze, self.robot, self.mazeViewFloat)
+		self.mazeViewFloat.add_widget(self.mazeView)
 		
 		self.workspace = BoxLayout(orientation="vertical", size_hint=(1, .9))#will contain a 'begin' button and label
 		self.beginButton = Button(text="Begin", size_hint=(1, .1))#run the tree
-		
 		self.beginButton.bind(on_press=self.app.runProgram)
-		
 		self.code = Label()#code is just being shown as text for now, will change in the next version
 		self.workspace.add_widget(self.code)
 		self.workspace.add_widget(self.beginButton)
 		
 		self.add_widget(Palette())
 		self.add_widget(self.workspace)	
-		self.add_widget(self.mazeView)
+		self.add_widget(self.mazeViewFloat)
 		
 
 class FIT3140App(kivy.app.App):
@@ -209,7 +220,6 @@ class FIT3140App(kivy.app.App):
 		self.maze = Maze(10)
 		self.robot = Robot(self.maze.start, self.maze)
 		self.robotController = RobotController(self.robot, self.maze)
-		
 		self.tree = fTree(self.robotController.robotEnv)#for now there will be only one tree (will change in next version)
 		self.f = FIT3140Ui(self.maze, self.robotController, size=Window.size)
 		return self.f

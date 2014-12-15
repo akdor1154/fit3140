@@ -1,5 +1,8 @@
 #!/usr/bin/env python2
 
+from kivy.event import EventDispatcher
+from kivy.properties import ListProperty, NumericProperty
+
 from random import randrange
 from random import shuffle
 
@@ -21,16 +24,21 @@ class Goal(MazeObject):
 	def __init__(self):
 		pass   
 
-class Robot(MazeObject):
-	def __init__(self, tile, maze):
-		super(self.__class__, self).__init__(tile=tile)#inherits from MazeObject
+class Robot(MazeObject, EventDispatcher):
+	kposition = ListProperty()
+	korientation = NumericProperty()
+	
+	def __init__(self, tile, maze, **kwargs):
+		MazeObject.__init__(self, tile=tile)#inherits from MazeObject
+		EventDispatcher.__init__(self, **kwargs)
 		self.orientation = 0 #0,1,2,3 = left,right,up,down
-		
 		self.maze = maze
 		
 	def move(self):
 		if self.tile.edges[self.orientation] is not None:
+			print(self.x, self.y)
 			self.tile = self.tile.edges[self.orientation]
+			print('moved to',self.x, self.y)
 		else:
 			raise WallError(self.orientation)
 	
@@ -41,7 +49,7 @@ class Robot(MazeObject):
 	#def turnLeft(self):
 	def turn(self, n):
 		for _ in range(n):
-			if self.orientaton == 0:
+			if self.orientation == 0:
 				self.orientation = 3
 			elif self.orientation == 1:
 				self.orientation = 2
@@ -49,17 +57,7 @@ class Robot(MazeObject):
 				self.orientation = 0
 			elif self.orientation == 3:
 				self.orientation = 1
-	"""	
-	def turnRight(self):
-		if self.orientaton == 0:
-			self.orientation = 2
-		elif self.orientation == 1:
-			self.orientation = 3
-		elif self.orientation == 2:
-			self.orientation = 1
-		elif self.orientation == 3:
-			self.orientation = 0
-	"""		
+				
 	def detectWall(self):
 		test = self.tile
 		distance = 0
@@ -94,6 +92,32 @@ class Robot(MazeObject):
 	@property
 	def y(self):
 		return self.tile.column
+		
+	@property
+	def tile(self):
+		return self._tile
+	
+	@tile.setter
+	def tile(self, value):
+		self._tile = value
+		self.kposition = (self._tile.row, self._tile.column)
+	
+	@property
+	def orientation(self):
+		return self._orientation
+	
+	@orientation.setter
+	def orientation(self, value):
+		self._orientation = value
+		self.korientation = value
+		
+	@property
+	def controller(self):
+		return self._controller
+	
+	@controller.setter
+	def controller(self, value):
+		self._controller = value
 
 class Tile(object):
 	def __init__(self, x, y):
