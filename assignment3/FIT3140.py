@@ -46,56 +46,73 @@ class RobotView(Widget):
 			Ellipse(pos=self.pos, size=self.size)
 
 class MazeView(Widget):
+	class TileView(object):
+		lineWidth = 2.0
+		lineColour = (0,0,0)
+		def __init__(self, parent, leftLinePoints = [], rightLinePoints = [], upLinePoints = [], downLinePoints = []):
+			with parent.canvas:
+				Color(0,0,0)
+				self.leftLine = Line(points=leftLinePoints, width=self.lineWidth)
+				self.rightLine = Line(points=rightLinePoints, width=self.lineWidth)
+				self.upLine = Line(points=upLinePoints, width=self.lineWidth)
+				self.downLine = Line(points=downLinePoints, width=self.lineWidth)
+
 	def __init__(self, maze, robot, **kwargs):
+		Widget.__init__(self, **kwargs)
+		
 		self.mazeSize = 10
 		self.maze = maze
 		self.robot = robot
-		self.tileWidth =  0
-		self.tileHeight = 0
-		super(self.__class__, self).__init__(**kwargs)
-		self.bind(pos=self.updateRect, size=self.updateRect)
+		self.bind(pos=self.updatePos, size=self.updateSize)
 		self.robotView = RobotView(self)
-	
-	def drawMaze(self):
-		tileWidth = self.width/self.maze.size
-		tileHeight = self.height/self.maze.size
-		self.tileWidth = tileWidth # need to keep track of these, but the following code will be very verbose if
-		self.tileHeight = tileHeight # we need to have self. everywhere!
 		with self.canvas:
 			Color(1,1,1)
-			Rectangle(pos=self.pos, size=self.size)
-			for (j,row) in enumerate(self.maze.maze):
-				for (i,tile) in enumerate(row):
-					tileBottomLeft = addVectors(self.pos, (i*tileWidth, j*tileHeight))
-					tileBottomRight = addVectors(tileBottomLeft, (tileWidth, 0))
-					tileTopLeft = addVectors(tileBottomLeft, (0, tileHeight))
-					tileTopRight = addVectors(tileBottomLeft, (tileWidth, tileHeight))
-					tileCentre = addVectors(tileBottomLeft, (tileWidth/2, tileHeight/2))
-					
-					m = 5
-					tileBottomLeft = addVectors(tileBottomLeft, (m, m))
-					tileBottomRight = addVectors(tileBottomRight, (-m, m))
-					tileTopLeft = addVectors(tileTopLeft, (m, -m))
-					tileTopRight = addVectors(tileTopRight, (-m, -m))
-					
-					Color(0,0,0)
-					lineWidth = 2.0
-					if tile.left is None:
-						Line(points=tileTopLeft+tileBottomLeft,width=lineWidth)
-					if tile.right is None:
-						Line(points=tileTopRight+tileBottomRight,width=lineWidth)
-					if tile.up is None:
-						Line(points=tileTopLeft+tileTopRight,width=lineWidth)
-					if tile.down is None:
-						Line(points=tileBottomLeft+tileBottomRight,width=lineWidth)
-						
-					Color(1,0,0,0.2)
-					d=20
-		self.robotView.draw()
+			self.background = Rectangle(pos=self.pos, size=self.size)
+		self.tileLines = [[self.TileView(parent=self) for tile in row] for row in self.maze.maze]
+		self.updateLines()
 
+	def updateLines(self):
+		for (j,row) in enumerate(self.maze.maze):
+			for (i,tile) in enumerate(row):
+				t = self.tileLines[i][j]
+				tileBottomLeft = addVectors(self.pos, (i*self.tileWidth, j*self.tileHeight))
+				tileBottomRight = addVectors(tileBottomLeft, (self.tileWidth, 0))
+				tileTopLeft = addVectors(tileBottomLeft, (0, self.tileHeight))
+				tileTopRight = addVectors(tileBottomLeft, (self.tileWidth, self.tileHeight))
+				tileCentre = addVectors(tileBottomLeft, (self.tileWidth/2, self.tileHeight/2))
+				
+				m = 5 #margin
+				tileBottomLeft = addVectors(tileBottomLeft, (m, m))
+				tileBottomRight = addVectors(tileBottomRight, (-m, m))
+				tileTopLeft = addVectors(tileTopLeft, (m, -m))
+				tileTopRight = addVectors(tileTopRight, (-m, -m))
+				
+				pointsList = (
+						(tileTopLeft+tileBottomLeft, tile.left, t.leftLine),
+						(tileTopRight+tileBottomRight, tile.right, t.rightLine),
+						(tileTopLeft+tileTopRight, tile.up, t.upLine),
+						(tileBottomLeft+tileBottomRight, tile.down, t.downLine)
+				)
+				
+				for (pointsSet, direction, line) in pointsList:
+					line.points = pointsSet if direction is None else []
+		
 	
-	def updateRect(self, instance, value):
-		self.drawMaze()
+	def updatePos(self, instance, value):
+		self.background.pos = self.pos
+		self.updateLines()
+	
+	def updateSize(self, instance, value):
+		self.background.size = self.size
+		self.updateLines()
+		
+	@property
+	def tileWidth(self):
+		return self.width/self.maze.size
+	
+	@property
+	def tileHeight(self):
+		return self.height/self.maze.size
 		
 class Palette(BoxLayout):
 	def __init__(self, **kwargs):
@@ -193,7 +210,7 @@ class FIT3140App(kivy.app.App):
 		self.robot = Robot(self.maze.start, self.maze)
 		self.robotController = RobotController(self.robot, self.maze)
 		
-		self.tree = fTree()#for now there will be only one tree (will change in next version)
+		self.tree = fTree(self.robotController.robotEnv)#for now there will be only one tree (will change in next version)
 		self.f = FIT3140Ui(self.maze, self.robotController, size=Window.size)
 		return self.f
 		

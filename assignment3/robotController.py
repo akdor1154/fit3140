@@ -1,15 +1,15 @@
 import fcode
 
-class RobotController():
+class RobotController(object):
 	def __init__(self, robot, maze):
 		self.robot = robot
 		self.maze = maze
 		self.fCode = None
 		self.robotEnv = fcode.build_global_env()
 		self.robotEnv.update({
-			'move':    lambda: Robot.move(self.robot),
+			'move':    self.robot.move,
 			'turn':	   lambda x: self.turn(x),
-			'detect-wall': lambda: Robot.move(self.robot),
+			'detect-wall': self.robot.detectWall,
 			'detect-goal': self.detectGoal,
 		})
 		
