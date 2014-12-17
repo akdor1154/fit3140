@@ -39,6 +39,7 @@ class fTree(object):
 	def execute(self):
 		for block in self.blocks:
 			if block == self.blocks[-1]:
+				self.blocks = [] #reset the tree
 				return eval(block.code, self.env)#the last line of code is what gets returned
 			print eval(block.code, self.env)
 
