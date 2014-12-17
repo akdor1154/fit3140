@@ -93,11 +93,11 @@ class MazeView(Widget):
 		for (i,row) in enumerate(self.maze.tiles):
 			for (j,tile) in enumerate(row):
 				t = self.tileLines[i][j]
-				tileBottomLeft = addVectors(self.pos, (i*self.tileWidth, j*self.tileHeight))
-				tileBottomRight = addVectors(tileBottomLeft, (self.tileWidth, 0))
-				tileTopLeft = addVectors(tileBottomLeft, (0, self.tileHeight))
-				tileTopRight = addVectors(tileBottomLeft, (self.tileWidth, self.tileHeight))
-				tileCentre = addVectors(tileBottomLeft, (self.tileWidth/2, self.tileHeight/2))
+				tileBottomLeft = V(self.pos) + V(i*self.tileWidth, j*self.tileHeight)
+				tileBottomRight = tileBottomLeft + V(self.tileWidth, 0)
+				tileTopLeft = tileBottomLeft + V(0, self.tileHeight)
+				tileTopRight = tileBottomLeft + V(self.tileWidth, self.tileHeight)
+				tileCentre = tileBottomLeft + V(self.tileWidth/2, self.tileHeight/2)
 				
 				m = 5 #margin
 				tileBottomLeft = addVectors(tileBottomLeft, (m, m))
