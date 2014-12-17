@@ -12,7 +12,7 @@ import operator
 
 from itertools import starmap
 
-from v import V
+from v import V, listOfPoints
 from fcode import fTree, fBlock
 from simulation import *
 from robotController import RobotController
@@ -22,12 +22,6 @@ import __future__
 class FCodeWorkspace(Widget):
 	
 	pass
-
-
-	
-	
-def addVectors(*vectors):
-	return map(operator.add, *vectors)
 
 
 class RobotView(Widget):
@@ -100,16 +94,16 @@ class MazeView(Widget):
 				tileCentre = tileBottomLeft + V(self.tileWidth/2, self.tileHeight/2)
 				
 				m = 5 #margin
-				tileBottomLeft = addVectors(tileBottomLeft, (m, m))
-				tileBottomRight = addVectors(tileBottomRight, (-m, m))
-				tileTopLeft = addVectors(tileTopLeft, (m, -m))
-				tileTopRight = addVectors(tileTopRight, (-m, -m))
+				tileBottomLeft = tileBottomLeft + V(m, m)
+				tileBottomRight = tileBottomRight + V(-m, m)
+				tileTopLeft = tileTopLeft + V(m, -m)
+				tileTopRight = tileTopRight + V(-m, -m)
 				
 				pointsList = (
-						(tileTopLeft+tileBottomLeft, tile.left, t.leftLine),
-						(tileTopRight+tileBottomRight, tile.right, t.rightLine),
-						(tileTopLeft+tileTopRight, tile.up, t.upLine),
-						(tileBottomLeft+tileBottomRight, tile.down, t.downLine)
+						(listOfPoints(tileTopLeft,tileBottomLeft), tile.left, t.leftLine),
+						(listOfPoints(tileTopRight,tileBottomRight), tile.right, t.rightLine),
+						(listOfPoints(tileTopLeft,tileTopRight), tile.up, t.upLine),
+						(listOfPoints(tileBottomLeft,tileBottomRight), tile.down, t.downLine)
 				)
 				
 				for (pointsSet, direction, line) in pointsList:

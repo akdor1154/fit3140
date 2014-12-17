@@ -16,15 +16,15 @@ class V(object):
 	
 	def __add__(self, other):
 		self.__check__(other)
-		return map(operator.add, self._v, other)
+		return V(map(operator.add, self._v, other))
 		
 	def __sub__(self, other):
 		self.__check__(other)
-		return map(operator.sub, self._v, other)
+		return V(map(operator.sub, self._v, other))
 		
 	def __mul__(self, other):
 		self.__check__(other)
-		return map(operator.mul, self._v, other)
+		return V(map(operator.mul, self._v, other))
 		
 	def __repr__(self):
 		return repr(self._v)
@@ -34,4 +34,11 @@ class V(object):
 		
 	def __iter__(self):
 		return iter(self._v)
+	
+
+def listOfPoints(*values):
+	retList = []
+	for v in values:
+		retList += list(v)
 		
+	return retList
