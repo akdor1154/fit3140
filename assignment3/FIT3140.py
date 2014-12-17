@@ -10,7 +10,9 @@ from kivy.graphics import Color, Rectangle, Line, Ellipse
 from kivy.core.window import Window
 import operator
 
+from itertools import starmap
 
+from v import V
 from fcode import fTree, fBlock
 from simulation import *
 from robotController import RobotController
@@ -22,8 +24,10 @@ class FCodeWorkspace(Widget):
 	pass
 
 
-def addVectors(v1, v2):
-	return map(operator.add, v1, v2)
+	
+	
+def addVectors(*vectors):
+	return map(operator.add, *vectors)
 
 
 class RobotView(Widget):
@@ -41,13 +45,11 @@ class RobotView(Widget):
 	
 	def updatePos(self, instance=None, value=(0,0)):
 		print("robot is at",self.robot.x,",",self.robot.y)
-		print("position: ",self.pos, self.mazeView.pos)
-		self.e.pos = addVectors(
-				(0.5*self.mazeView.tileWidth, 0.5*self.mazeView.tileHeight),
-				(self.robot.x * self.mazeView.tileWidth, self.robot.y * self.mazeView.tileHeight)
-		
+		print("position: ",self.e.pos, self.mazeView.pos)
+		self.e.pos = V(self.mazeView.tileWidth, self.mazeView.tileHeight) * (
+				(V(self.robot.x, self.robot.y)+V(0.5, 0.5))
 		)
-		print("position: ",self.pos,self.mazeView.pos,self.parent,self.mazeView.parent)
+		print("position: ",self.e.pos,self.mazeView.pos)
 	
 	def updateOrientation(self, instance, value):
 		pass
@@ -84,12 +86,12 @@ class MazeView(Widget):
 		self.robotView = RobotView(mazeView=self)
 		self.layout.add_widget(self.robotView)
 			
-		self.tileLines = [[self.TileView(parent=self) for tile in row] for row in self.maze.maze]
+		self.tileLines = [[self.TileView(parent=self) for tile in row] for row in self.maze.tiles]
 		self.updateLines()
 
 	def updateLines(self):
-		for (j,row) in enumerate(self.maze.maze):
-			for (i,tile) in enumerate(row):
+		for (i,row) in enumerate(self.maze.tiles):
+			for (j,tile) in enumerate(row):
 				t = self.tileLines[i][j]
 				tileBottomLeft = addVectors(self.pos, (i*self.tileWidth, j*self.tileHeight))
 				tileBottomRight = addVectors(tileBottomLeft, (self.tileWidth, 0))
@@ -116,10 +118,12 @@ class MazeView(Widget):
 	
 	def updatePos(self, instance, value):
 		self.background.pos = self.pos
+		self.robotView.updatePos()
 		self.updateLines()
 	
 	def updateSize(self, instance, value):
 		self.background.size = self.size
+		self.robotView.updatePos()
 		self.updateLines()
 		
 	@property
@@ -129,8 +133,16 @@ class MazeView(Widget):
 	@property
 	def tileHeight(self):
 		return self.height/self.maze.size
-		
+	
 class Palette(BoxLayout):
+
+	def addFunction(self, name, nArguments):
+		b = Button(text=name)
+		b.nArguments = nArguments
+		b.bind(on_press=self.app.addBlock)
+		self.buttons.append(b)
+		self.add_widget(b)
+		
 	def __init__(self, **kwargs):
 	
 		super(self.__class__, self).__init__(**kwargs)
@@ -142,54 +154,28 @@ class Palette(BoxLayout):
 		self.app.arguments = [TextInput(),TextInput(),TextInput(),TextInput(),TextInput()]
 		for a in self.app.arguments:
 			argumentSection.add_widget(a)
-			
-				
-		self.turnButton = Button(text="turn")
-		self.moveButton = Button(text="move")
-		self.detectWallButton = Button(text="detect-wall")
-		self.detectGoalButton = Button(text="detect-goal")
-		self.addButton = Button(text="add")
-		self.subButton = Button(text="subtract")
-		self.multButton = Button(text="multiply")
-		self.divButton = Button(text="divide")
-		self.modButton = Button(text="modulus")
-		self.equButton = Button(text="equals")
-		self.lessButton = Button(text="lessthan")
-		self.greatButton = Button(text="greaterthan")
-		#self.defButton = Button(text="Define")
 		
+		self.buttons = []
 		
-		self.turnButton.bind(on_press=self.app.addBlock)
-		self.moveButton.bind(on_press=self.app.addBlock)
-		self.detectWallButton.bind(on_press=self.app.addBlock)
-		self.detectGoalButton.bind(on_press=self.app.addBlock)
-		self.addButton.bind(on_press=self.app.addBlock)
-		self.subButton.bind(on_press=self.app.addBlock)
-		self.multButton.bind(on_press=self.app.addBlock)
-		self.divButton.bind(on_press=self.app.addBlock)
-		self.modButton.bind(on_press=self.app.addBlock)
-		self.equButton.bind(on_press=self.app.addBlock)
-		self.lessButton.bind(on_press=self.app.addBlock)
-		self.greatButton.bind(on_press=self.app.addBlock)
-		#self.defButton.bind(on_press=self.app.addBlock)
+		buttonDefinitions = (
+			("turn", 1),
+			("move", 0),
+			("detect-wall", 0),
+			("detect-goal", 0),
+			("add", 2),
+			("subtract", 2),
+			("multiply", 2),
+			("divide", 2),
+			("modulus", 2),
+			("equals", 2),
+			("lessthan", 2),
+			("greaterthan", 2)
+		)
 		
-		
+		list(starmap(self.addFunction, buttonDefinitions))
 		
 		self.add_widget(argumentSection)
 		
-		self.add_widget(self.turnButton)
-		self.add_widget(self.moveButton)
-		self.add_widget(self.detectWallButton)
-		self.add_widget(self.detectGoalButton)
-		self.add_widget(self.addButton)
-		self.add_widget(self.subButton)
-		self.add_widget(self.multButton)
-		self.add_widget(self.divButton)
-		self.add_widget(self.modButton)
-		self.add_widget(self.equButton)
-		self.add_widget(self.lessButton)
-		self.add_widget(self.greatButton)
-		#self.x.add_widget(self.defButton)
 
 class FIT3140Ui(BoxLayout):
 	def __init__(self, maze, robotController, **kwargs):

@@ -87,11 +87,11 @@ class Robot(MazeObject, EventDispatcher):
 	
 	@property
 	def x(self):
-		return self.tile.row
+		return self.tile.column
 	
 	@property
 	def y(self):
-		return self.tile.column
+		return self.tile.row
 		
 	@property
 	def tile(self):
@@ -166,25 +166,30 @@ class Tile(object):
 class Maze(object):
 	def __init__(self, size):
 		self.size = size
-		self.maze = []
+		self.tiles = []
 		
 		
-		for y in range(size):
+		for x in range(size):
 			level = []
-			for x in range(size):
+			for y in range(size):
 				level.append(Tile(x, y))
-			self.maze.append(level)
+			self.tiles.append(level)
 			
-			 
-		self.start = self.maze[0][randrange(size)]
+		for y in zip(*self.tiles):
+			for tile in y:
+				print "{},{}".format(tile.column, tile.row),
+			print ""
+			
+		
+		self.start = self.tiles[randrange(size)][0]
 		self.start.connected = True
 		
 		self.generate()
 		
 	def generate(self):
 		#[left, right, up, down]
-		X = [0, 0, 1, -1]
-		Y = [-1, 1, 0, 0]
+		X = [-1, 1, 0, 0]
+		Y = [0, 0, 1, -1]
 		#^^ the additions you need to make to the current index to move along one edge, with that edge as the index
 		randorder = [0, 1, 2, 3]
 		nodes = [self.start]
@@ -198,11 +203,16 @@ class Maze(object):
 			
 			nextTile = None
 			for side in randorder:
-				nextRow = current.row + X[side]
-				nextColumn = current.column + Y[side]
+				nextColumn = current.column + X[side]
+				nextRow = current.row + Y[side]
 				#(X/Y)[side] will match up with the direction of side, giving the next tile
-				if (nextRow >= 0 and nextRow < self.size and nextColumn >= 0 and nextColumn < self.size) and (not (self.maze[nextRow][nextColumn].connected)):#check if the tile on this side 1) exists, and 2) is not already part of the maze
-					nextTile = self.maze[nextRow][nextColumn]
+				if (
+					(nextRow >= 0 and nextRow < self.size and nextColumn >= 0 and nextColumn < self.size)
+				and
+					(not (self.tiles[nextColumn][nextRow].connected))
+				):
+					#check if the tile on this side 1) exists, and 2) is not already part of the maze
+					nextTile = self.tiles[nextColumn][nextRow]
 					
 					#link the two tiles together
 					current.edges[side] = nextTile
@@ -223,7 +233,7 @@ class Maze(object):
 	def displayText(self):
 		#for testing purposes only
 		#print maze with maze[0] at the top (backwards)
-		for row in self.maze:
+		for row in self.tiles:
 			a = []
 			for column in row:
 				b = ""
