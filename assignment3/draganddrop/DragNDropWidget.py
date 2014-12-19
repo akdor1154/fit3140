@@ -145,6 +145,8 @@ class DragNDropWidget(Widget):
             # IF self.remove_on_drag == False !!! In this case this is
             # met in DragableArhellModelImage class
             copy_of_self = copy.deepcopy(self)
+            self._copy = copy_of_self
+            copy_of_self._original_self = self
             self._old_parent.add_widget(copy_of_self, index=self._old_index)
 
     def on_drag_finish(self):
@@ -158,9 +160,9 @@ class DragNDropWidget(Widget):
                     dropped_ok = True
             if dropped_ok:
                 self.drop_func(*self.drop_args)
-                anim = Animation(opacity=0, duration=0.7, t="in_quad")
-                anim.bind(on_complete=self.deparent)
-                anim.start(self)
+                #anim = Animation(opacity=0, duration=0.7, t="in_quad")
+                #anim.bind(on_complete=self.deparent)
+                #anim.start(self)
                 '''
             else:
                 anim = Animation(pos=self._old_drag_pos, duration=0.7, t="in_quad")

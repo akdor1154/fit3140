@@ -69,44 +69,17 @@ class DragableLayout(BoxLayout, DragNDropWidget):
         '''
         print (self.lastDroppedZone, "<<ZONE")
         print (self.lastDroppedZone.parent, "<<ZONEPARENT")
-        '''
-        self.lastDroppedZone.parent.remove_widget(self.lastDroppedZone)
-        self.lastDroppedZone.parent.add_widget(self)
-        '''
-        y = self.lastDroppedZone
-        x = y.parent
+
+        argumentToReplace = self.lastDroppedZone
+        fBlockParent = argumentToReplace.parent
+        
+        indexOfArgument = fBlockParent.children.index(argumentToReplace)
+        fBlockParent.remove_widget(argumentToReplace)
+        self.parent.remove_widget(self)
+        fBlockParent.add_widget(self, index=indexOfArgument)
         
         
-        w = []
-        for widget in x.children[:]:
-            #print widget
-            if widget is y:
-                #new = copy.deepcopy(self)
-                new = DragableLayout()
-                for child in self.children[:]:
-                    child.parent.remove_widget(child)
-                    new.add_widget(child)
-                #self.parent.remove_widget(self)
-                w.append(new)
-            else:
-                w.append(widget)
-        x.clear_widgets()
-        #print w, "before"
-        while w:
-            x.add_widget(w.pop())
-        #print w, "after"
-        
-        print new, new.children, self
-        #print self.parent.children
-        """print x, "x"
-        print y, "y"
-        print x.children, "xChildren"
-        print "vvchild childrenvv"
-        for child in x.children:
-            if child.children:
-                print child.children
-                print child.children[0].children
-        """
+
         #self.size_hint = (2,2)    
         #self.canvas.ask_update
         #self.parent.canvas.ask_update
