@@ -8,8 +8,9 @@ Created on Oct 24, 2012
 from DragNDropWidget import DragNDropWidget
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
-from kivy.graphics import Rectangle
+from kivy.graphics import *
 from kivy.uix.button import Button
+import copy
 
 
 dropZones = []
@@ -64,10 +65,54 @@ class DragableLayout(BoxLayout, DragNDropWidget):
             self.mainLayout.add_widget(l)
             
     def replaceWidget(self):
+        '''
+        '''
         print (self.lastDroppedZone, "<<ZONE")
         print (self.lastDroppedZone.parent, "<<ZONEPARENT")
+        '''
+        self.lastDroppedZone.parent.remove_widget(self.lastDroppedZone)
+        self.lastDroppedZone.parent.add_widget(self)
+        '''
+        y = self.lastDroppedZone
+        x = y.parent
         
-
+        
+        w = []
+        for widget in x.children[:]:
+            #print widget
+            if widget is y:
+                #new = copy.deepcopy(self)
+                new = DragableLayout()
+                for child in self.children[:]:
+                    child.parent.remove_widget(child)
+                    new.add_widget(child)
+                #self.parent.remove_widget(self)
+                w.append(new)
+            else:
+                w.append(widget)
+        x.clear_widgets()
+        #print w, "before"
+        while w:
+            x.add_widget(w.pop())
+        #print w, "after"
+        
+        print new, new.children, self
+        #print self.parent.children
+        """print x, "x"
+        print y, "y"
+        print x.children, "xChildren"
+        print "vvchild childrenvv"
+        for child in x.children:
+            if child.children:
+                print child.children
+                print child.children[0].children
+        """
+        #self.size_hint = (2,2)    
+        #self.canvas.ask_update
+        #self.parent.canvas.ask_update
+        
+        #self.do_layout()
+        
     def __deepcopy__(self, dumb):
         return DragableLayout(droppable_zone_objects=self.droppable_zone_objects,
                               bound_zone_objects=self.bound_zone_objects,
