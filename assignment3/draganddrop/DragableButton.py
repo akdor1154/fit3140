@@ -6,6 +6,7 @@ Created on Oct 24, 2012
 
 
 from DragNDropWidget import DragNDropWidget
+from kivy.uix.widget import Widget
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
 from kivy.graphics import *
@@ -35,7 +36,49 @@ class DragableButton(Button, DragNDropWidget):
                               drag_opacity=self.drag_opacity,
                               drop_func=self.drop_func,
                               remove_on_drag=self.remove_on_drag)
-"""        
+"""     
+
+class FArgument(Widget):
+    def __init__(self, text, **kwargs):
+        super(self.__class__,self).__init__(**kwargs)
+        self.width = 80
+        self.height = 50
+        self.label = Label(text=text)
+        with self.canvas:
+            Color(0.6,0.4,0.4)
+            self.bg = Rectangle(size=self.size, pos=self.pos)
+        self.add_widget(self.label)
+        
+    def on_size(self, instance, value):
+        self.bg.size = self.size
+        
+    def on_pos(self, instance, value):
+        self.bg.pos = self.pos
+        self.label.pos = self.pos
+        
+        
+    
+class FName(Widget):
+    def __init__(self, text, **kwargs):
+        super(self.__class__,self).__init__(**kwargs)
+        self.width = 80
+        self.height = 80
+        self.label = Label(text=text)
+        with self.canvas:
+            Color(0.4,0.4,0.4)
+            self.bg = Rectangle(size=self.size, pos=self.pos)
+        self.add_widget(self.label)
+        
+    
+    def on_size(self, instance, value):
+        self.bg.size = self.size
+        
+    def on_pos(self, instance, value):
+        self.bg.pos = self.pos
+        self.label.pos = self.pos
+       
+     
+    
 class DragableLayout(BoxLayout, DragNDropWidget):
     '''
     classdocs
@@ -55,10 +98,12 @@ class DragableLayout(BoxLayout, DragNDropWidget):
         
         print (self.parent, "<<<<<<<<<<<PARENT")
         
-    def makeFunction(self, FName, Nargs):
-        self.mainLayout.add_widget(Button(text=str(FName)))
-        for _ in range(Nargs):
-            l = Button(text="drop arguments here")
+    def makeFunction(self, functionName, nArgs):
+        functionName = FName(text=str(functionName))
+        
+        self.mainLayout.add_widget(functionName)
+        for _ in range(nArgs):
+            l = FArgument(text="drop arguments here")
             dropZones.append(l)
             #with l.canvas:
             #    Rectangle(pos=l.pos, size=l.size, color=(0,0,1))
