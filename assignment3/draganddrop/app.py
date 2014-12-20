@@ -41,16 +41,18 @@ class MyPaintApp(App):
     def build(self):
         #return Builder.load_string(kv)
         codeSpace = BoxLayout(orientation="vertical")
-        widgets = []
-        for n in range(3):
-            x = DragableLayout()
-            x.makeFunction(n, 2)
-            x.bound_zone_objects.append(codeSpace)
-            codeSpace.add_widget(x)
-            widgets.append(x)
-        #newFunction = DragableLayout()
-        #newFunction.makeFunction("test",2)
-        #widgets[-1].mainLayout.add_widget(newFunction)
+        
+        functions = [['add', 2,], ['subtract', 2], ['multiply', 2], ['divide', 2], 
+        ['lessthan', 2], ['greaterthan', 2], ['equals', 2], ['modulus', 2], ['comment', 1],
+        ['begin', 1]]
+        
+        for f in functions:
+            functionBlock = DragableLayout()
+            functionBlock.makeFunction(*f)#f[0], f[1])
+            functionBlock.palette = True
+            codeSpace.add_widget(functionBlock)
+        
+        
         return codeSpace
     def greet(self):
         print "Dragging done!!!"

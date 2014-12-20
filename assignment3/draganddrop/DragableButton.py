@@ -14,7 +14,6 @@ from kivy.uix.textinput import TextInput
 import copy
 
 
-dropZones = []
 
 """
 class DragableButton(Button, DragNDropWidget):
@@ -41,6 +40,7 @@ class DragableLayout(BoxLayout, DragNDropWidget):
     '''
     classdocs
     '''
+    dropZones = []
     def __init__(self, **kw):
         '''
         Constructor
@@ -48,13 +48,15 @@ class DragableLayout(BoxLayout, DragNDropWidget):
         #Button.__init__(self, **kw)
         super(DragableLayout, self).__init__(**kw)
         self.size_hint = (None, None)
-        self.droppable_zone_objects = dropZones
+        self.droppable_zone_objects = DragableLayout.dropZones
         self.mainLayout = BoxLayout(orientation="vertical", padding=[10,0,0,0])
         self.add_widget(self.mainLayout)
         
         self.set_remove_on_drag(False)
         
         self.drop_func = self.replaceWidget
+        
+        self.palette = False
         
 
     def makeFunction(self, FName, NArgs):
@@ -66,7 +68,7 @@ class DragableLayout(BoxLayout, DragNDropWidget):
         
         for _ in range(NArgs):
             l = TextInput()
-            dropZones.append(l)
+            DragableLayout.dropZones.append(l)
             self.mainLayout.add_widget(l)
             
     def replaceWidget(self):
@@ -77,6 +79,8 @@ class DragableLayout(BoxLayout, DragNDropWidget):
 
         argumentToReplace = self.lastDroppedZone
         fBlockParent = argumentToReplace.parent
+        
+        #nonetype has no parent??????????????
         
         indexOfArgument = fBlockParent.children.index(argumentToReplace)
         fBlockParent.remove_widget(argumentToReplace)
@@ -92,7 +96,7 @@ class DragableLayout(BoxLayout, DragNDropWidget):
                 if not ((PH[0] is None) or (PH[1] is None)):
                         p.size_hint = (PH[0]+(PH[0]*mult), PH[1]+(PH[1]*mult))
                 p = p.parent
-                mult = mult * 0.5
+                mult = mult * 0.25
             except:
                 break
         
@@ -101,14 +105,18 @@ class DragableLayout(BoxLayout, DragNDropWidget):
         self.parent.canvas.ask_update
         self.canvas.ask_update
         
+    
+    def updateDropZones(self):
+        self.droppable_zone_objects = DragableLayout.dropZones
+        
     def __deepcopy__(self, dumb):
-        DL = DragableLayout(droppable_zone_objects=self.droppable_zone_objects,
+        DL = DragableLayout(droppable_zone_objects=DragableLayout.dropZones,
                               bound_zone_objects=self.bound_zone_objects,
                               drag_opacity=self.drag_opacity,
                               drop_func=self.drop_func,
                               remove_on_drag=True)
         DL.makeFunction(self.FName, self.NArgs)
-        DL.set_remove_on_drag(True)
+        #DL.set_remove_on_drag(False)
         print DL.remove_on_drag, "rod"
         
         return DL

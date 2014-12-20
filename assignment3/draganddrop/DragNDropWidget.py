@@ -1,5 +1,8 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
+
+#module based on code by Pavel Kostelník at; http://kostasprogramming.blogspot.cz/2012/10/kivy-framework-drag-n-drop-widget.html
+
 from kivy.core.window import Window
 from kivy.animation import Animation
 import copy
@@ -147,18 +150,27 @@ class DragNDropWidget(Widget):
             copy_of_self = copy.deepcopy(self)
             self._copy = copy_of_self
             copy_of_self._original_self = self
-            self._old_parent.add_widget(copy_of_self, index=self._old_index)
+            
+            print self._old_parent, "oldparent"
+            try:
+                self._old_parent.add_widget(copy_of_self, index=self._old_index)
+            except:
+                print "failed"
 
     def on_drag_finish(self):
         print "drag finish"
         if self._dragged and self._dragable:
             self.opacity = 1.0
             dropped_ok = False
+            
+            self.updateDropZones()
+            #print self.droppable_zone_objects,  "DZO"
             for obj in self.droppable_zone_objects:
                 if obj.collide_point(*self.pos):
                     self.lastDroppedZone = obj
                     dropped_ok = True
             if dropped_ok:
+                print "DROP FUNC"
                 self.drop_func(*self.drop_args)
                 #anim = Animation(opacity=0, duration=0.7, t="in_quad")
                 #anim.bind(on_complete=self.deparent)
