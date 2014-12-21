@@ -8,13 +8,15 @@ from kivy.uix.label import Label
 from kivy.properties import NumericProperty, OptionProperty, VariableListProperty
 from kivy.graphics import *
 
+from kivy.uix.textinput import TextInput
+
 class FArgument(Widget):
 	def __init__(self, text, **kwargs):
 		super(self.__class__,self).__init__(**kwargs)
 		with self.canvas:
 			Color(0.6,0.4,0.4)
 			self.bg = Rectangle(size=self.size, pos=self.pos)
-		self.label = Label(text=text, padding=[-FLayout.blockIndent, 0], valign="middle")
+		self.label = TextInput(text=text, padding=[-FLayout.blockIndent, 0], valign="middle")
 		self.add_widget(self.label)
 		self.bind(size=self.on_size, pos=self.on_pos)
 		
@@ -203,16 +205,21 @@ class FLayout(Layout):
 	def addArgument(self):
 		#TODO:
 		pass
+	
+	def replaceArgument(self, oldArgument, newArgument):
+		index = self.children.index(oldArgument)
+		self.remove_widget(oldArgument)
+		self.add_widget(newArgument, index)
 
 if __name__ == '__main__':
 	class TestApp(App):
 		def build(self):
+			"""
 			fTest = FLayout(orientation="vertical", pos=(50,50))
 			
 			fSubTest = FLayout()
 			
 			fSubSubTest = FLayout("subsubfunc()", ["arg3_1", "arg3_2", "arg3_3"])
-			
 			fSubTest.add_widget(FName("subfunctionlonglonglong()"))
 			fSubTest.add_widget(FArgument("arg1_1"))
 			fSubTest.add_widget(fSubSubTest)
@@ -222,8 +229,23 @@ if __name__ == '__main__':
 			
 			fTest.add_widget(fSubTest)
 			fTest.add_widget(FArgument("arg2"))
+			"""
 			
+			fTest = FLayout("subsubfunc()", ["arg3_1", "arg3_2", "arg3_3"])
+			fTest.add_widget(FLayout("subsubsubfunc()", ["arg3_1", "arg3_2", "arg3_3"]), 1)
 			
+			"""
+			inp = 2
+			inp2 = ("name", ("1", "2", "3"))
+			
+			fTest.remove_widget(fTest.children[inp])
+			fTest.add_widget(FLayout(*inp2), inp)
+			"""
+			
+			fTest.replaceArgument(fTest.children[2], FLayout("NAME", ("1", "2")))
+			
+			#fSubTest = (FLayout("subsubfunc()", ["arg3_1", "arg3_2", "arg3_3"]))
+			#fTest.add_widget(fSubTest)
 			
 			return fTest
 		
