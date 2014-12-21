@@ -26,28 +26,8 @@ import __future__
 
 class FCodeWorkspace(FloatLayout):
 	
-	#def __init__(self, RC):
-	#	self.robotController = RC
-		
-	def runCode(self):
-		trees = []
-		for root in self.children:
-			tree = fTree()
-			tree.addBlock(self.buildTree(root))
-		for tree in trees:
-			tree.execute()
-			
 			
 	def buildTree(self, root):
-		"""
-		for child in root.children:
-			args = []
-			try:
-				x = child.text
-				args.append(x)
-			except:
-				return self.buildTree(child)
-		"""
 		args = []
 		args.append(str(root).split("(")[0])
 		for arg in root.fArgs:
@@ -254,12 +234,10 @@ class FIT3140App(kivy.app.App):
 		return self.f
 		
 	def runProgram(self, button):
-		workspace = button.parent.parent.workspaceLayout.children[1]
-		print FCodeWorkspace().runCode()
-	def addBlock(self, button):
-		a = fBlock(button.text, self.arguments[0].text, self.arguments[1].text, self.arguments[2].text, self.arguments[3].text, self.arguments[4].text)
-		self.tree.addBlock(a)
-		self.f.code.text += "\n" + str(a.code)
+		tree = fTree(self.robotController.robotEnv)
+		for fLayout in self.f.workspace.children:
+			tree.addBlock(self.f.workspace.buildTree(fLayout))
+		print tree.execute()
 
 		
 
