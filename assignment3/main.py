@@ -45,15 +45,14 @@ class RobotView(Widget):
 		super(self.__class__, self).__init__(**kwargs)
 		self.mazeView = mazeView
 		self.robot = mazeView.robot
-		self.size = (40,40)
 		self.robot.bind(kposition=self.updatePos)
 		self.robot.bind(korientation=self.updateLine)
-		with self.mazeView.canvas:
-			Color(0.4,0.4,0.8)
-			self.e = Ellipse(pos=self.pos, size=self.size)
-			Color(0.9,0.9,0.9)
-			self.l = Line(width=4)
-		self.updatePos()
+		self.ellipseSize = (40,40)
+		self.normalColour = (0.4, 0.4, 0.8)
+		self.errorColour = (0.8, 0.4, 0.4)
+		self.lineColour = (0.9, 0.9, 0.9)
+		self.colour = self.normalColour
+		self.redraw()
 	
 	def updatePos(self, instance=None, value=(0,0)):
 		self.e.pos = V(self.mazeView.tileWidth, self.mazeView.tileHeight) * (
@@ -72,6 +71,19 @@ class RobotView(Widget):
 		ellipseEnd = ellipseCentre+ellipseDirectionOffsets[self.robot.orientation]
 		self.l.points = listOfPoints(ellipseCentre, ellipseEnd)
 	
+	def redraw(self):
+		self.size = self.ellipseSize
+		self.mazeView.redraw()
+		with self.mazeView.canvas:
+			Color(*self.colour)
+			self.e = Ellipse(pos=self.pos, size=self.size)
+			Color(*self.lineColour)
+			self.l = Line(width=4)
+		self.updatePos()
+	
+	def changeColour(self, colour):
+		self.colour = colour
+		self.redraw()
 		
 
 class MazeView(Widget):
@@ -97,16 +109,11 @@ class MazeView(Widget):
 		self.bind(pos=self.updatePos, size=self.updateSize)
 		
 		#self.robotView.updatePos()
+		self.redraw()
 		
-		with self.canvas:
-			Color(1,1,1)
-			self.background = Rectangle(pos=self.pos, size=self.size)
-			
 		self.robotView = RobotView(mazeView=self)
 		self.layout.add_widget(self.robotView)
-			
-		self.tileLines = [[self.TileView(parent=self) for tile in row] for row in self.maze.tiles]
-		self.updateLines()
+		
 
 	def updateLines(self):
 		for (i,row) in enumerate(self.maze.tiles):
@@ -133,7 +140,15 @@ class MazeView(Widget):
 				
 				for (pointsSet, direction, line) in pointsList:
 					line.points = pointsSet if direction is None else []
-		
+					
+	def redraw(self):
+		self.canvas.clear()
+		with self.canvas:
+			Color(1,1,1)
+			self.background = Rectangle(pos=self.pos, size=self.size)
+			
+		self.tileLines = [[self.TileView(parent=self) for tile in row] for row in self.maze.tiles]
+		self.updateLines()
 	
 	def updatePos(self, instance, value):
 		self.background.pos = self.pos
@@ -209,6 +224,21 @@ class PaletteButton(FName):
 		newFunction.touchRelative = (0,0)
 		newFunction.dispatch("on_drag_start")
 		
+class ErrorDialog(Button):
+	def __init__(self, errorMessage, **kwargs):
+		super(Button, self).__init__(**kwargs)
+		self.errorMessage = errorMessage
+		self.text = self.errorMessage
+		self.size_hint = (0.9, 0.3)
+		self.opacity = 0.6
+		self.pos_hint = {'center_x': 0.5, 'center_y': 0.5}
+	
+	def on_press(self):
+		app = kivy.app.App.get_running_app()
+		app.f.mazeView.robotView.changeColour(app.f.mazeView.robotView.normalColour)
+		self.parent.remove_widget(self)
+		app.reset()
+		
 	
 class FIT3140Ui(BoxLayout):
 	def __init__(self, maze, robotController, **kwargs):
@@ -240,8 +270,9 @@ class FIT3140App(kivy.app.App):
 	def build(self):
 		self.maze = Maze(10)
 		self.robot = Robot(self.maze.start, self.maze)
+		self._robot_start = (self.robot.tile, self.robot.orientation)
 		self.robotController = RobotController(self.robot, self.maze)
-		self.tree = fTree(self.robotController.robotEnv)#for now there will be only one tree (will change in next version)
+		#self.tree = fTree(self.robotController.robotEnv)#for now there will be only one tree (will change in next version)
 		self.f = FIT3140Ui(self.maze, self.robotController, size=Window.size)
 		return self.f
 		
@@ -249,8 +280,16 @@ class FIT3140App(kivy.app.App):
 		tree = fTree(self.robotController.robotEnv)
 		for fLayout in self.f.workspace.children:
 			tree.addBlock(self.f.workspace.buildTree(fLayout))
-		print tree.execute()
+		try:
+			print tree.execute()
+		except FIT3140Error as e:
+			self.f.mazeView.robotView.changeColour(self.f.mazeView.robotView.errorColour)
+			self.errorButton = ErrorDialog(e.message)
+			self.f.mazeViewFloat.add_widget(self.errorButton)
 
+	def reset(self):
+		(self.robot.tile, self.robot.orientation) = self._robot_start
+	
 		
 
 if __name__ == '__main__':

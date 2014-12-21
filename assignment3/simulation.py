@@ -8,10 +8,14 @@ from random import shuffle
 
 import __future__
 
-class WallError(Exception):
+class FIT3140Error(Exception):
+	pass
+	
+class WallError(FIT3140Error):
 	#error for if the robot crashes into a wall
 	def __init__(self, wall):
 		self.wallHit = wall
+		self.message = str(self)
 	def __str__(self):
 		return ("Hit wall: " + str(self.wallHit))
 

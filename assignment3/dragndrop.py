@@ -189,10 +189,7 @@ class DragNDropWidget(Widget):
 				#anim.bind(on_complete=self.deparent)
 				#anim.start(self)
 			else:
-				if self._transient:
-					self.deparent()
-				else:
-					self.reborn()
+				self.deparent()
 			self._dragged = False
 
 	def deparent(self, widget="dumb", anim="dumb2"):
