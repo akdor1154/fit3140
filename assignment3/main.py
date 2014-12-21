@@ -88,6 +88,26 @@ class RobotView(Widget):
 	def changeColour(self, colour):
 		self.colour = colour
 		self.redraw()
+
+class GoalView(Widget):
+	def __init__(self, goal, mazeView, **kwargs):
+		super(self.__class__, self).__init__(**kwargs)
+		self.goal = goal
+		self.mazeView = mazeView
+		self.rectSize = (35, 35)
+		self.colour = (0.3, 0.7, 0.3)
+		self.redraw()
+		
+	def redraw(self):
+		with self.mazeView.canvas:
+			Color(*self.colour)
+			self.r = Rectangle(pos=self.pos, size=self.rectSize)
+		self.updatePos()
+		
+	def updatePos(self, instance=None, value=(0,0)):
+		self.r.size = V(self.mazeView.tileWidth, self.mazeView.tileHeight) * V(0.5, 0.5)
+		self.r.pos = ( V(self.mazeView.tileWidth, self.mazeView.tileHeight) * (V(self.goal.x, self.goal.y) + V(0.5,0.5))
+						- V(self.r.size) * (0.5, 0.5) )
 		
 
 class MazeView(Widget):
@@ -111,11 +131,20 @@ class MazeView(Widget):
 		self.robot = robot
 		self.layout = layout
 		
+		self.goalViews = []
+		
 		self.bind(pos=self.updatePos, size=self.updateSize)
 		
 		#self.robotView.updatePos()
 		self.redraw()
 		
+		for goal in self.maze.goals:
+			self.goalViews.append(GoalView(goal, self))
+		print(self.maze.goals)
+		for goalView in self.goalViews:
+			print(goalView)
+			self.layout.add_widget(goalView)
+			
 		self.robotView = RobotView(mazeView=self)
 		self.layout.add_widget(self.robotView)
 		
@@ -155,15 +184,19 @@ class MazeView(Widget):
 			
 		self.tileLines = [[self.TileView(parent=self) for tile in row] for row in self.maze.tiles]
 		self.updateLines()
+		
+		[gV.redraw() for gV in self.goalViews]
 	
 	def updatePos(self, instance, value):
 		self.background.pos = self.pos
 		self.robotView.updatePos()
+		[goalView.updatePos() for goalView in self.goalViews]
 		self.updateLines()
 	
 	def updateSize(self, instance, value):
 		self.background.size = self.size
 		self.robotView.updatePos()
+		[goalView.updatePos() for goalView in self.goalViews]
 		self.updateLines()
 		
 	@property

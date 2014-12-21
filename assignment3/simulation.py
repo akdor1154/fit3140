@@ -23,10 +23,19 @@ class WallError(FIT3140Error):
 class MazeObject(object):
 	def __init__(self, tile):
 		self.tile = tile
+		
+	@property
+	def x(self):
+		return self.tile.column
+	
+	@property
+	def y(self):
+		return self.tile.row
 	
 class Goal(MazeObject):
-	def __init__(self):
-		pass   
+	def __init__(self, tile):
+		MazeObject.__init__(self, tile)
+		self.tile.object = self
 
 def wallToStr(wall):
 	return ['left', 'right', 'up', 'down'][wall]
@@ -96,13 +105,6 @@ class Robot(MazeObject, EventDispatcher):
 		except IndexError:
 			return -1
 	
-	@property
-	def x(self):
-		return self.tile.column
-	
-	@property
-	def y(self):
-		return self.tile.row
 		
 	@property
 	def tile(self):
@@ -178,7 +180,7 @@ class Maze(object):
 	def __init__(self, size):
 		self.size = size
 		self.tiles = []
-		
+		self.goals = []
 		
 		for x in range(size):
 			level = []
@@ -197,7 +199,9 @@ class Maze(object):
 		
 		self.generate()
 		
-		self.tiles[randrange(self.size)][randrange(self.size)].object=Goal()
+		self.goals.append(Goal( self.tiles[randrange(self.size)][randrange(self.size)] ))
+		
+		
 		
 	def generate(self):
 		#[left, right, up, down]
