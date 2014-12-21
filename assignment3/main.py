@@ -29,7 +29,7 @@ class FCodeWorkspace(FloatLayout):
 			
 	def buildTree(self, root):
 		args = []
-		args.append(str(root).split("(")[0])
+		args.append(root.fName.fName)
 		for arg in root.fArgs:
 			try:
 				args.append(arg.name)
