@@ -292,8 +292,24 @@ class FIT3140App(kivy.app.App):
 		
 	def runProgram(self, button):
 		#everything in the workspace gets added to a tree, and then executed
+		
+		#sort the workspace in order of lowest to highest
+		oldChildren = self.f.workspace.children[:]
+		sortedChildren = []
+		for _ in range(len(oldChildren)):
+			small = oldChildren[0]
+			for child in oldChildren:
+				if child.pos[1] < small.pos[1]:
+					small = child
+					#oldChildren.remove(child)
+					break
+			oldChildren.remove(small)
+			sortedChildren.append(small)
+		#print self.f.workspace.children[:], "old"
+		#print sortedChildren, "new"
+		
 		tree = fTree(self.robotController.robotEnv)
-		for fLayout in self.f.workspace.children:
+		for fLayout in reversed(sortedChildren):#change it to highest to lowest
 			tree.addBlock(self.f.workspace.buildTree(fLayout))
 		try:
 			print tree.execute()
