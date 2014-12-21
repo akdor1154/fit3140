@@ -5,6 +5,7 @@ from kivy.uix.widget import Widget
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.layout import Layout
 from kivy.uix.label import Label
+from kivy.uix.textinput import TextInput
 from kivy.properties import NumericProperty, OptionProperty, VariableListProperty
 from kivy.graphics import *
 
@@ -20,17 +21,17 @@ class FArgument(Widget):
 		with self.canvas:
 			Color(0.6,0.4,0.4)
 			self.bg = Rectangle(size=self.size, pos=self.pos)
-		self.label = Label(text=self.name, padding=[-FLayout.blockIndent, 0], valign="middle")
-		self.add_widget(self.label)
+		self.layout = BoxLayout(padding=[10,10,10,10])
+		self.textbox = TextInput(text=self.name)
+		self.layout.add_widget(self.textbox)
+		self.add_widget(self.layout)
 		self.bind(size=self.redoLayout, pos=self.redoLayout)
 		
 	def redoLayout(self, instance, value):
 		self.bg.size = self.size
-		self.label.size = self.size
-		self.label.text_size = self.size
-		
 		self.bg.pos = self.pos
-		self.label.pos = self.pos
+		self.layout.size = self.size
+		self.layout.pos = self.pos
 		
 	
 	def __repr__(self):
