@@ -78,12 +78,16 @@ class Robot(MazeObject, EventDispatcher):
 		distance = 0
 		row = self.tile.row
 		column = self.tile.column
-		while self.maze[row][column] is not None:
-			if self.maze[row][column].goal:
-				break
-			row += nextX
-			column += nextY
-		return distance
+		try:
+			while self.maze.tiles[row][column] is not None:
+				if self.maze.tiles[row][column].object.__class__ is Goal:
+					return distance
+				row += nextX
+				column += nextY
+				distance += 1
+			return -1
+		except IndexError:
+			return -1
 	
 	@property
 	def x(self):

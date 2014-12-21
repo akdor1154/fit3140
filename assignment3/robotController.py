@@ -11,12 +11,10 @@ class RobotController(object):
 			'move':    self.robot.move,
 			'turn':	   lambda x: self.robot.turn(x),
 			'detect-wall': self.robot.detectWall,
-			'detect-goal': self.detectGoal,
+			'detect-goal': self.robot.detectGoal,
 		})
 		
 	def run(self):
 		fcode.eval(self.fCode)
 	
-	def detectGoal(self):
-		self.robot.detectGoal(self.maze)
 	
