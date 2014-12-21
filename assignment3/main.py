@@ -1,9 +1,11 @@
 #!/usr/bin/env python2
 import kivy.app
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from kivy.uix.relativelayout import RelativeLayout
+from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 from kivy.graphics import Color, Rectangle, Line, Ellipse
@@ -17,10 +19,12 @@ from fcode import fTree, fBlock
 from simulation import *
 from robotController import RobotController
 
+from fcodeui import *
+from dragndrop import DragNDropWidget
+
 import __future__
 
-class FCodeWorkspace(Widget):
-	
+class FCodeWorkspace(FloatLayout):
 	pass
 
 
@@ -128,26 +132,19 @@ class MazeView(Widget):
 	def tileHeight(self):
 		return self.height/self.maze.size
 	
-class Palette(BoxLayout):
+class Palette(GridLayout):
 
 	def addFunction(self, name, nArguments):
-		b = Button(text=name)
-		b.nArguments = nArguments
-		b.bind(on_press=self.app.addBlock)
+		b = PaletteButton(name, nArguments, workspace=self.workspace)
 		self.buttons.append(b)
 		self.add_widget(b)
 		
-	def __init__(self, **kwargs):
-	
-		super(self.__class__, self).__init__(**kwargs)
+	def __init__(self, workspace, **kwargs):
+		#self.workspace = workspace
+		self.cols = 3
+		self.workspace=workspace
+		super(Palette, self).__init__(cols=self.cols, **kwargs)
 		self.app = kivy.app.App.get_running_app()
-		self.orientation="vertical"
-		
-		argumentSection = BoxLayout()
-		
-		self.app.arguments = [TextInput(),TextInput(),TextInput(),TextInput(),TextInput()]
-		for a in self.app.arguments:
-			argumentSection.add_widget(a)
 		
 		self.buttons = []
 		
@@ -168,9 +165,26 @@ class Palette(BoxLayout):
 		
 		list(starmap(self.addFunction, buttonDefinitions))
 		
-		self.add_widget(argumentSection)
 		
-
+class PaletteButton(FName):
+	def __init__(self, fName, nArguments, workspace, **kwargs):
+		self.nArguments = nArguments
+		self.workspace = workspace
+		super(PaletteButton, self).__init__(fName=fName, **kwargs)
+		
+		
+	def on_touch_down(self, touch):
+		if not self.collide_point(touch.x, touch.y):
+			return False
+		self.makeFunction()
+		
+	def makeFunction(self):
+		newFunction = FLayout(self.fName, nArguments=self.nArguments, rootLayout=self.workspace)
+		self.get_root_window().add_widget(newFunction)
+		newFunction.touchRelative = (0,0)
+		newFunction.dispatch("on_drag_start")
+		
+	
 class FIT3140Ui(BoxLayout):
 	def __init__(self, maze, robotController, **kwargs):
 	
@@ -185,15 +199,15 @@ class FIT3140Ui(BoxLayout):
 		self.mazeView = MazeView(self.maze, self.robot, self.mazeViewFloat)
 		self.mazeViewFloat.add_widget(self.mazeView)
 		
-		self.workspace = BoxLayout(orientation="vertical", size_hint=(1, .9))#will contain a 'begin' button and label
+		self.workspaceLayout = BoxLayout(orientation="vertical", size_hint=(1, .9))#will contain a 'begin' button and label
 		self.beginButton = Button(text="Begin", size_hint=(1, .1))#run the tree
 		self.beginButton.bind(on_press=self.app.runProgram)
-		self.code = Label()#code is just being shown as text for now, will change in the next version
-		self.workspace.add_widget(self.code)
-		self.workspace.add_widget(self.beginButton)
+		self.workspace = FCodeWorkspace()#code is just being shown as text for now, will change in the next version
+		self.workspaceLayout.add_widget(self.workspace)
+		self.workspaceLayout.add_widget(self.beginButton)
 		
-		self.add_widget(Palette())
-		self.add_widget(self.workspace)	
+		self.add_widget(Palette(workspace=self.workspace))
+		self.add_widget(self.workspaceLayout)	
 		self.add_widget(self.mazeViewFloat)
 		
 
