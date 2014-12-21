@@ -15,6 +15,9 @@ from pdb import set_trace
 from dragndrop import DragNDropWidget
 
 class FArgument(Widget):
+	"""
+	the argument section of an fBlock
+	"""
 	def __init__(self, text="__", **kwargs):
 		self.name = text
 		super(self.__class__,self).__init__(**kwargs)
@@ -42,6 +45,9 @@ class FArgument(Widget):
 		
 	
 class FName(Widget):
+	"""
+	the name of an fBlock
+	"""
 	def __init__(self, fName, **kwargs):
 		self.fName = fName
 		super(FName, self).__init__(**kwargs)
@@ -76,7 +82,7 @@ class FLayout(Layout, DragNDropWidget):
 	'''Box layout class. See module documentation for more information.
 	'''
 
-	droppable_zone_objects = []
+	droppable_zone_objects = []#list of all the objects that this can be dropped into
 	nameHeight = 50
 	argHeight = nameHeight
 	blockWidth = 100
@@ -126,6 +132,8 @@ class FLayout(Layout, DragNDropWidget):
 		if nArguments and fArgStrings and nArgs < len(fArgStrings):
 			raise ValueError('you passed more arguments that you said your function could take')
 		
+		
+		#adds nArguments, or the given arguments, to the fBlock widget
 		self.nArguments = max(nArguments, len(fArgStrings))
 		for i in range(self.nArguments):
 			try:
@@ -163,6 +171,7 @@ class FLayout(Layout, DragNDropWidget):
 
 				
 	def _getDropZones(self):
+		#returns a list of all the widgets that this can be dropped into
 		dropZones = []
 		for child in self.children:
 			if (
@@ -267,6 +276,7 @@ class FLayout(Layout, DragNDropWidget):
 			pass
 	
 	def replaceArgument(self, argToAdd, argToReplace):
+		#delete an argument and add another one at the old index (used when dropping something over another text box)
 		self.fArgs[self.fArgs.index(argToReplace)] = argToAdd
 		childrenIndex = self.children.index(argToReplace)
 		self.remove_widget(argToReplace, forceRemove=True)
