@@ -33,7 +33,7 @@ class FName(Widget):
 	def __init__(self, text, **kwargs):
 		super(self.__class__,self).__init__(**kwargs)
 		with self.canvas:
-			Color(0.4,0.4,0.4)
+			Color(0.4,0.4,0.4, 0.4)
 			self.bg = Rectangle(size=self.size, pos=self.pos)
 		self.label = Label(text=text, padding=[-FLayout.blockIndent, 0])
 		self.add_widget(self.label)
