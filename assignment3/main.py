@@ -21,6 +21,7 @@ from robotController import RobotController
 
 from fcodeui import *
 from dragndrop import DragNDropWidget
+from error import FIT3140Error
 
 import __future__
 
@@ -236,8 +237,14 @@ class ErrorDialog(Button):
 		self.errorMessage = errorMessage
 		self.text = self.errorMessage
 		self.size_hint = (0.9, 0.3)
-		self.opacity = 0.6
+		self.opacity = 0.8
 		self.pos_hint = {'center_x': 0.5, 'center_y': 0.5}
+		self.valign = 'middle'
+		self.halign = 'center'
+		self.bind(size=self.updateSize)
+	
+	def updateSize(self, instance, value):
+		self.text_size = self.size
 	
 	def on_press(self):
 		app = kivy.app.App.get_running_app()
