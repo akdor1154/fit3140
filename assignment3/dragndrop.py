@@ -188,15 +188,11 @@ class DragNDropWidget(Widget):
 				#anim = Animation(opacity=0, duration=0.7, t="in_quad")
 				#anim.bind(on_complete=self.deparent)
 				#anim.start(self)
-				'''
 			else:
-				anim = Animation(pos=self._old_drag_pos, duration=0.7, t="in_quad")
-				if self.remove_on_drag:
-					anim.bind(on_complete = self.reborn)
+				if self._transient:
+					self.deparent()
 				else:
-					anim.bind(on_complete = self.deparent)
-				anim.start(self)
-				'''
+					self.reborn()
 			self._dragged = False
 
 	def deparent(self, widget="dumb", anim="dumb2"):
@@ -205,9 +201,13 @@ class DragNDropWidget(Widget):
 	def on_being_dragged(self):
 		print "being dragged"
 
-	def reborn(self, widget, anim):
+	def reborn(self):
 		self.deparent()
-		self._old_parent.add_widget(self, index=self._old_index)
+		if self._replacement:
+			self._old_parent.replaceArgument(self, self._replacement)
+		else:
+			self._old_parent.add_widget(self, index=self._old_index)
+		self.pos = self._old_drag_pos
 
 	def reparent(self, widget):
 		parent = widget.parent

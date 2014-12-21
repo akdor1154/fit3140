@@ -181,6 +181,7 @@ class PaletteButton(FName):
 	def makeFunction(self):
 		newFunction = FLayout(self.fName, nArguments=self.nArguments, rootLayout=self.workspace)
 		self.get_root_window().add_widget(newFunction)
+		newFunction._transient = True
 		newFunction.touchRelative = (0,0)
 		newFunction.dispatch("on_drag_start")
 		

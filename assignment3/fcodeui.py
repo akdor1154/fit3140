@@ -133,7 +133,7 @@ class FLayout(Layout, DragNDropWidget):
 		map(lambda x: self.add_widget(x, forceAdd=True), self.fArgs)
 		
 		self.rootLayout = rootLayout
-		
+		self._transient = False
 		self.drop_func = self.dropOnTarget
 		
 	def __repr__(self):
@@ -290,7 +290,8 @@ class FLayout(Layout, DragNDropWidget):
 				raise ValueError('you can\'t manually add/remove arguments. Use replaceArgument instead!')
 		elif isinstance(widget, FLayout):
 			if not forceRemove:
-				return self.replaceArgument(FArgument(), widget)
+				widget._replacement = FArgument()
+				return self.replaceArgument(widget._replacement, widget)
 		widget.unbind(
 			pos_hint=self._trigger_layout)
 		self._invalidateSizeCache()
@@ -320,20 +321,21 @@ class FLayout(Layout, DragNDropWidget):
 			return Widget.on_touch_down(self, touch)
 	
 	def dropOnTarget(self, widgetToReplace):
-		
+		self._replacement = None
 		if widgetToReplace is self.rootLayout:
+			self._transient = False
 			self.parent.remove_widget(self)
 			self.rootLayout.add_widget(self)
-		
-		if widgetToReplace.__class__ is FName:
-			if widgetToReplace.parent.isRoot():
-				raise Exception('tried to replace the root layout, this should be impossible as it shouldn\'t be a drop target')
-			widgetToReplace = widgetToReplace.parent
-			
-		if widgetToReplace.__class__ in (FArgument, FLayout):
-			fBlockParent = widgetToReplace.parent
-			self.parent.remove_widget(self)
-			fBlockParent.replaceArgument(self, widgetToReplace)
+		else :
+			if widgetToReplace.__class__ is FName:
+				if widgetToReplace.parent.isRoot():
+					raise Exception('tried to replace the root layout, this should be impossible as it shouldn\'t be a drop target')
+				widgetToReplace = widgetToReplace.parent
+				
+			if widgetToReplace.__class__ in (FArgument, FLayout):
+				fBlockParent = widgetToReplace.parent
+				self.parent.remove_widget(self)
+				fBlockParent.replaceArgument(self, widgetToReplace)
 
 
 
