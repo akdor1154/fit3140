@@ -5,7 +5,16 @@
 
 import __future__
 
+from error import FIT3140Error
 
+class LispyError(FIT3140Error):
+	pass
+	
+class LispyNameError(NameError, LispyError):
+	pass
+	
+class LispySyntaxError(SyntaxError, LispyError):
+	pass
 
 class fBlock():
 	#represents a code block (eg. (add x y)  )
@@ -55,7 +64,7 @@ def parse(lispyString):
 
 def buildTree(tokens):
 	if len(tokens) == 0:
-		raise SyntaxError('buildTree called on an empty list')
+		raise LispySyntaxError('buildTree called on an empty list')
 	token = tokens.pop(0)
 	if token == '(':
 		branch = []
@@ -64,7 +73,7 @@ def buildTree(tokens):
 		tokens.pop(0) # drop the end )
 		return branch
 	elif token == ')':
-		raise SyntaxError('got a ) without a (')
+		raise LispySyntaxError('got a ) without a (')
 	else:
 		return atom(token)
 
@@ -101,7 +110,7 @@ class Env(dict):
 		elif self.parent is not None:
 			return self.parent.find(var)
 		else:
-			raise NameError(var+' is not defined in the current Lispy environment')
+			raise LispyNameError(var+' is not defined in the current Lispy environment')
 		
 
 def build_global_env():
