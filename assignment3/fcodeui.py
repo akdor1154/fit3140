@@ -26,6 +26,7 @@ class FArgument(Widget):
 		self.layout.add_widget(self.textbox)
 		self.add_widget(self.layout)
 		self.bind(size=self.redoLayout, pos=self.redoLayout)
+		self.textbox.bind(text=self.updateText)
 		
 	def redoLayout(self, instance, value):
 		self.bg.size = self.size
@@ -33,7 +34,9 @@ class FArgument(Widget):
 		self.layout.size = self.size
 		self.layout.pos = self.pos
 		
-	
+	def updateText(self, instance, value):
+		self.name = self.textbox.text
+		
 	def __repr__(self):
 		return self.name
 		
@@ -322,8 +325,8 @@ class FLayout(Layout, DragNDropWidget):
 	
 	def dropOnTarget(self, widgetToReplace):
 		self._replacement = None
+		self._transient = False
 		if widgetToReplace is self.rootLayout:
-			self._transient = False
 			self.parent.remove_widget(self)
 			self.rootLayout.add_widget(self)
 		else :
