@@ -6,10 +6,10 @@ from kivy.properties import ListProperty, NumericProperty
 from random import randrange
 from random import shuffle
 
-from error import FIT3140Error
-
 import __future__
 
+class FIT3140Error(Exception):
+	pass
 	
 class WallError(FIT3140Error):
 	#error for if the robot crashes into a wall
@@ -17,7 +17,7 @@ class WallError(FIT3140Error):
 		self.wallHit = wall
 		self.message = str(self)
 	def __str__(self):
-		return ("Hit wall: " + wallToStr(self.wallHit))
+		return ("Hit wall: " + str(self.wallHit))
 
 
 class MazeObject(object):
@@ -27,9 +27,6 @@ class MazeObject(object):
 class Goal(MazeObject):
 	def __init__(self):
 		pass   
-
-def wallToStr(wall):
-	return ['left', 'right', 'up', 'down'][wall]
 
 class Robot(MazeObject, EventDispatcher):
 	kposition = ListProperty()
@@ -197,7 +194,7 @@ class Maze(object):
 		
 		self.generate()
 		
-		self.tiles[randrange(self.size)][randrange(self.size)].object=Goal()
+		self.tiles[randrange(self.size)][randrange(self.size)].object=Goal() #put a goal in any random place, because all the tiles will be connected, so it doesn't really matter
 		
 	def generate(self):
 		#[left, right, up, down]
