@@ -85,6 +85,8 @@ class FLayout(Layout):
 	'''
 
 	def __init__(self, fName=None, fArgs=[], **kwargs):
+		self.neededWidthCache = None
+		self.neededHeightCache = None
 		super(FLayout, self).__init__(**kwargs)
 		self.bind(
 			spacing=self._trigger_layout,
@@ -149,36 +151,49 @@ class FLayout(Layout):
 
 
 	def calculateHeight(self):
-		neededHeight = 0
-		for child in self.children:
-			if child.__class__ is FLayout:
-				neededHeight += child.calculateHeight()
-			elif child.__class__ is FName:
-				neededHeight += self.nameHeight
-			elif child.__class__ is FArgument:
-				neededHeight += self.argHeight
-		return neededHeight
+		if self.neededHeightCache is None:
+			neededHeight = 0
+			for child in self.children:
+				if child.__class__ is FLayout:
+					neededHeight += child.calculateHeight()
+				elif child.__class__ is FName:
+					neededHeight += self.nameHeight
+				elif child.__class__ is FArgument:
+					neededHeight += self.argHeight
+			self.neededHeightCache = neededHeight
+		return self.neededHeightCache
 		
 	def calculateWidth(self):
-		neededWidths = []
-		for child in self.children:
-			if child.__class__ is FLayout:
-				neededWidths.append(self.blockIndent+child.calculateWidth())
-			elif child.__class__ is FName:
-				neededWidths.append(self.blockIndent+self.blockWidth)
-			elif child.__class__ is FArgument:
-				neededWidths.append(self.blockIndent+self.blockWidth)
-		return max(neededWidths)
-		pass
+		if self.neededWidthCache is None:
+			neededWidths = []
+			for child in self.children:
+				if child.__class__ is FLayout:
+					neededWidths.append(self.blockIndent+child.calculateWidth())
+				elif child.__class__ is FName:
+					neededWidths.append(self.blockIndent+self.blockWidth)
+				elif child.__class__ is FArgument:
+					neededWidths.append(self.blockIndent+self.blockWidth)
+			self.neededWidthCache = max(neededWidths)
+		return self.neededWidthCache
+		
+	def _inavlidateSizeCache(self):
+		self.neededHeightCache = None
+		self.neededWidthCache = None
+		try:
+			self.parent._invalidateSizeCache()
+		except AttributeError:
+			pass
 		
 	def add_widget(self, widget, index=0):
 		widget.bind(
 			pos_hint=self._trigger_layout)
+		self._inavlidateSizeCache()
 		return super(FLayout, self).add_widget(widget, index)
 
 	def remove_widget(self, widget):
 		widget.unbind(
 			pos_hint=self._trigger_layout)
+		self._inavlidateSizeCache()
 		return super(FLayout, self).remove_widget(widget)
 
 	def setName(self):
