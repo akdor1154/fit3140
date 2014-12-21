@@ -31,17 +31,18 @@ class FCodeWorkspace(FloatLayout):
 		args = []
 		args.append(root.fName.fName)
 		for arg in root.fArgs:
-			try:
+			try:#if the current item is just a single value
 				args.append(arg.name)
-			except:
+			except:#if it is another tree, recurse through it
 				args.append(self.buildTree(arg))
 			
-		return fBlock(*args)
+		return fBlock(*args)#return an fBlock object using all of the arguents that we just got
 				
 
 
 class RobotView(Widget):
 	def __init__(self, mazeView, **kwargs):
+		#draw the robot onto the maze
 		super(self.__class__, self).__init__(**kwargs)
 		self.mazeView = mazeView
 		self.robot = mazeView.robot
@@ -52,16 +53,18 @@ class RobotView(Widget):
 			Color(0.4,0.4,0.8)
 			self.e = Ellipse(pos=self.pos, size=self.size)
 			Color(0.9,0.9,0.9)
-			self.l = Line(width=4)
+			self.l = Line(width=4)#you need this to see the orientation of the robot
 		self.updatePos()
 	
 	def updatePos(self, instance=None, value=(0,0)):
+		#redraw the robot; for when it moves
 		self.e.pos = V(self.mazeView.tileWidth, self.mazeView.tileHeight) * (
 				(V(self.robot.x, self.robot.y)+V(0.5, 0.5))
-		) - V(self.e.size)*V(0.5, 0.5)
+		) - V(self.e.size)*V(0.5, 0.5)#V is a vertex
 		self.updateLine(instance, value)
 		
 	def updateLine(self, instance=None, value=None):
+		#update the robots line (that shows its orientation)
 		ellipseCentre = V(self.e.pos)+V(self.e.size)*V(0.5,0.5)
 		ellipseDirectionOffsets = [
 			V(-self.e.size[0]/2, 0),
@@ -76,6 +79,7 @@ class RobotView(Widget):
 
 class MazeView(Widget):
 	class TileView(object):
+		#draw one tile
 		lineWidth = 2.0
 		lineColour = (0,0,0)
 		def __init__(self, parent, leftLinePoints = [], rightLinePoints = [], upLinePoints = [], downLinePoints = []):
@@ -101,14 +105,15 @@ class MazeView(Widget):
 		with self.canvas:
 			Color(1,1,1)
 			self.background = Rectangle(pos=self.pos, size=self.size)
-			
+		#add a robot	
 		self.robotView = RobotView(mazeView=self)
 		self.layout.add_widget(self.robotView)
 			
 		self.tileLines = [[self.TileView(parent=self) for tile in row] for row in self.maze.tiles]
 		self.updateLines()
-
+		#draw all of the tiles
 	def updateLines(self):
+		#for all of the tiles, if there is a wall on any of its sides, draw a line, otherwise don't
 		for (i,row) in enumerate(self.maze.tiles):
 			for (j,tile) in enumerate(row):
 				t = self.tileLines[i][j]
@@ -156,6 +161,7 @@ class MazeView(Widget):
 class Palette(GridLayout):
 
 	def addFunction(self, name, nArguments):
+		#add a function to the palette
 		b = PaletteButton(name, nArguments, workspace=self.workspace)
 		self.buttons.append(b)
 		self.add_widget(b)
@@ -207,7 +213,7 @@ class PaletteButton(FName):
 		self.get_root_window().add_widget(newFunction)
 		newFunction._transient = True
 		newFunction.touchRelative = (0,0)
-		newFunction.dispatch("on_drag_start")
+		newFunction.dispatch("on_drag_start")#on drag start will expand out the arguments for that function
 		
 	
 class FIT3140Ui(BoxLayout):
@@ -227,13 +233,14 @@ class FIT3140Ui(BoxLayout):
 		self.workspaceLayout = BoxLayout(orientation="vertical", size_hint=(1, .9))#will contain a 'begin' button and label
 		self.beginButton = Button(text="Begin", size_hint=(1, .1))#run the tree
 		self.beginButton.bind(on_press=self.app.runProgram)
-		self.workspace = FCodeWorkspace()#code is just being shown as text for now, will change in the next version
+		self.workspace = FCodeWorkspace()
 		self.workspaceLayout.add_widget(self.workspace)
 		self.workspaceLayout.add_widget(self.beginButton)
 		
-		self.add_widget(Palette(workspace=self.workspace))
-		self.add_widget(self.workspaceLayout)	
-		self.add_widget(self.mazeViewFloat)
+		#add all the things to the main screen
+		self.add_widget(Palette(workspace=self.workspace))#add the palette
+		self.add_widget(self.workspaceLayout)#add the workspace	
+		self.add_widget(self.mazeViewFloat)#add the maze
 		
 
 class FIT3140App(kivy.app.App):
@@ -246,10 +253,11 @@ class FIT3140App(kivy.app.App):
 		return self.f
 		
 	def runProgram(self, button):
+		#everything in the workspace gets added to a tree, and then executed
 		tree = fTree(self.robotController.robotEnv)
 		for fLayout in self.f.workspace.children:
 			tree.addBlock(self.f.workspace.buildTree(fLayout))
-		print tree.execute()
+		print tree.execute()#execute the tree
 
 		
 
