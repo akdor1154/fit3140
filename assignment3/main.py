@@ -45,24 +45,33 @@ class RobotView(Widget):
 		super(self.__class__, self).__init__(**kwargs)
 		self.mazeView = mazeView
 		self.robot = mazeView.robot
-		self.size = (10,10)
+		self.size = (40,40)
 		self.robot.bind(kposition=self.updatePos)
-		self.robot.bind(kposition=self.updateOrientation)
+		self.robot.bind(korientation=self.updateLine)
 		with self.mazeView.canvas:
-			Color(0,0,1)
+			Color(0.4,0.4,0.8)
 			self.e = Ellipse(pos=self.pos, size=self.size)
+			Color(0.9,0.9,0.9)
+			self.l = Line(width=4)
 		self.updatePos()
 	
 	def updatePos(self, instance=None, value=(0,0)):
-		print("robot is at",self.robot.x,",",self.robot.y)
-		print("position: ",self.e.pos, self.mazeView.pos)
 		self.e.pos = V(self.mazeView.tileWidth, self.mazeView.tileHeight) * (
 				(V(self.robot.x, self.robot.y)+V(0.5, 0.5))
-		)
-		print("position: ",self.e.pos,self.mazeView.pos)
+		) - V(self.e.size)*V(0.5, 0.5)
+		self.updateLine(instance, value)
+		
+	def updateLine(self, instance=None, value=None):
+		ellipseCentre = V(self.e.pos)+V(self.e.size)*V(0.5,0.5)
+		ellipseDirectionOffsets = [
+			V(-self.e.size[0]/2, 0),
+			V( self.e.size[0]/2, 0),
+			V(0,  self.e.size[1]/2),
+			V(0, -self.e.size[1]/2)
+		]
+		ellipseEnd = ellipseCentre+ellipseDirectionOffsets[self.robot.orientation]
+		self.l.points = listOfPoints(ellipseCentre, ellipseEnd)
 	
-	def updateOrientation(self, instance, value):
-		pass
 		
 
 class MazeView(Widget):
@@ -172,7 +181,10 @@ class Palette(GridLayout):
 			("modulus", 2),
 			("equals", 2),
 			("lessthan", 2),
-			("greaterthan", 2)
+			("greaterthan", 2),
+			
+			("if",2),
+			("set",2)
 		)
 		
 		list(starmap(self.addFunction, buttonDefinitions))
