@@ -194,6 +194,8 @@ class Maze(object):
 		
 		self.generate()
 		
+		self.tiles[randrange(self.size)][randrange(self.size)].object=Goal()
+		
 	def generate(self):
 		#[left, right, up, down]
 		X = [-1, 1, 0, 0]
