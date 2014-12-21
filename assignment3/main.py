@@ -183,7 +183,7 @@ class Palette(GridLayout):
 			("lessthan", 2),
 			("greaterthan", 2),
 			
-			("if",2),
+			("if",3),
 			("set",2)
 		)
 		
