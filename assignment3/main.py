@@ -25,11 +25,18 @@ from dragndrop import DragNDropWidget
 import __future__
 
 class FCodeWorkspace(FloatLayout):
-	def runCode(self, workspace):
-		result = []
-		for root in workspace.children:
-			result.append(self.buildTree(root))
-		return result
+	
+	#def __init__(self, RC):
+	#	self.robotController = RC
+		
+	def runCode(self):
+		trees = []
+		for root in self.children:
+			tree = fTree()
+			tree.addBlock(self.buildTree(root))
+		for tree in trees:
+			tree.execute()
+			
 			
 	def buildTree(self, root):
 		"""
@@ -49,7 +56,7 @@ class FCodeWorkspace(FloatLayout):
 			except:
 				args.append(self.buildTree(arg))
 			
-		return fBlock(*args).codeStr
+		return fBlock(*args)
 				
 
 
@@ -248,8 +255,7 @@ class FIT3140App(kivy.app.App):
 		
 	def runProgram(self, button):
 		workspace = button.parent.parent.workspaceLayout.children[1]
-		print workspace.children
-		print FCodeWorkspace().runCode(workspace)
+		print FCodeWorkspace().runCode()
 	def addBlock(self, button):
 		a = fBlock(button.text, self.arguments[0].text, self.arguments[1].text, self.arguments[2].text, self.arguments[3].text, self.arguments[4].text)
 		self.tree.addBlock(a)
