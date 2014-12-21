@@ -322,8 +322,8 @@ class FLayout(Layout, DragNDropWidget):
 	
 	def dropOnTarget(self, widgetToReplace):
 		self._replacement = None
+		self._transient = False
 		if widgetToReplace is self.rootLayout:
-			self._transient = False
 			self.parent.remove_widget(self)
 			self.rootLayout.add_widget(self)
 		else :
